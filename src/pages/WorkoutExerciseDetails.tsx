@@ -1,14 +1,45 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
-import { Play, CheckCircle } from "lucide-react";
+import { Play, CheckCircle, Plus } from "lucide-react";
 import { EXERCISE_LIST } from "@/lib/exercises";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const WorkoutExerciseDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
-  const { loading } = useAuth();
+  const { loading, session } = useAuth();
+  const [showSaveDialog, setShowSaveDialog] = useState(false);
+  const [workoutName, setWorkoutName] = useState("");
+
+  const handleAddToWorkout = async () => {
+    if (!workoutName.trim()) {
+      toast.error("Please enter a workout name");
+      return;
+    }
+
+    try {
+      const { error } = await supabase.from('workouts').insert([{
+        name: workoutName,
+        exercises: [exerciseData] as any,
+        user_id: session?.user?.id,
+      }]);
+
+      if (error) throw error;
+
+      toast.success("Workout created successfully!");
+      setWorkoutName("");
+      setShowSaveDialog(false);
+      navigate("/workouts");
+    } catch (error) {
+      console.error("Error saving workout:", error);
+      toast.error("Failed to save workout");
+    }
+  };
 
   if (loading) {
     return (
@@ -143,16 +174,56 @@ const WorkoutExerciseDetails = () => {
           </div>
         </div>
 
-        {/* Action Button */}
-        <div className="mt-6">
+        {/* Action Buttons */}
+        <div className="mt-6 grid grid-cols-2 gap-4">
+          <Button
+            onClick={() => setShowSaveDialog(true)}
+            className="py-6 text-xl rounded-[15px]"
+          >
+            <Plus className="w-6 h-6 mr-2" />
+            Add to Workout
+          </Button>
           <Button
             onClick={() => navigate("/create-workout-library")}
             variant="outline"
-            className="w-full bg-white py-6 text-xl rounded-[15px]"
+            className="bg-white py-6 text-xl rounded-[15px]"
           >
             Browse More Exercises
           </Button>
         </div>
+
+        {/* Save Workout Dialog */}
+        {showSaveDialog && (
+          <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+            <Card className="bg-white rounded-[20px] p-6 max-w-md w-full mx-4">
+              <h2 className="text-2xl font-bold text-black mb-4">Create Workout</h2>
+              <p className="text-gray-600 mb-4">
+                Adding <strong>{exercise.name}</strong> to a new workout
+              </p>
+              <Input
+                value={workoutName}
+                onChange={(e) => setWorkoutName(e.target.value)}
+                placeholder="Enter workout name..."
+                className="mb-4"
+              />
+              <div className="flex gap-2">
+                <Button
+                  onClick={() => setShowSaveDialog(false)}
+                  variant="outline"
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleAddToWorkout}
+                  className="flex-1"
+                >
+                  Create Workout
+                </Button>
+              </div>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   );
