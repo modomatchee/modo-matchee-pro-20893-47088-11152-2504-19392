@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FileText, Download, Printer, Mail, Share2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const HealthReportShare = () => {
   const navigate = useNavigate();
@@ -36,6 +37,32 @@ const HealthReportShare = () => {
   const handleEmail = () => {
     toast.success("Email sharing feature coming soon!");
   };
+
+  // Weekly biometric data
+  const weeklyData = [
+    { day: "Mon", sleep: 7.2, heartRate: 65, respiratory: 15 },
+    { day: "Tue", sleep: 8.1, heartRate: 64, respiratory: 16 },
+    { day: "Wed", sleep: 6.8, heartRate: 66, respiratory: 14 },
+    { day: "Thu", sleep: 7.5, heartRate: 65, respiratory: 16 },
+    { day: "Fri", sleep: 7.9, heartRate: 63, respiratory: 15 },
+    { day: "Sat", sleep: 8.5, heartRate: 64, respiratory: 16 },
+    { day: "Sun", sleep: 7.8, heartRate: 65, respiratory: 15 },
+  ];
+
+  const sleepStagesData = [
+    { name: "Awake", hours: 0.5, percentage: 7 },
+    { name: "Light", hours: 4.2, percentage: 56 },
+    { name: "Deep", hours: 1.8, percentage: 24 },
+    { name: "REM", hours: 1.0, percentage: 13 },
+  ];
+
+  const heartRateZonesData = [
+    { name: "Rest", time: 1110, label: "18h 30m" },
+    { name: "Light", time: 260, label: "4h 20m" },
+    { name: "Moderate", time: 45, label: "45m" },
+    { name: "Hard", time: 15, label: "15m" },
+    { name: "Peak", time: 5, label: "5m" },
+  ];
 
   return (
     <div className="min-h-screen bg-secondary p-8">
@@ -108,6 +135,31 @@ const HealthReportShare = () => {
           {/* Sleep Analysis */}
           <div className="mb-8">
             <h3 className="text-2xl font-bold mb-4">Sleep Analysis</h3>
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-3">Weekly Sleep Trend</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="sleep" stroke="hsl(var(--health-sleep))" strokeWidth={2} name="Sleep (hrs)" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-3">Sleep Stages Distribution</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={sleepStagesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Bar dataKey="hours" fill="hsl(var(--health-sleep))" name="Hours" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
             <div className="space-y-3">
               <div className="flex justify-between p-3 bg-gray-50 rounded">
                 <span className="font-semibold">Average Sleep Duration</span>
@@ -131,6 +183,31 @@ const HealthReportShare = () => {
           {/* Heart Rate Analysis */}
           <div className="mb-8">
             <h3 className="text-2xl font-bold mb-4">Cardiovascular Health</h3>
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-3">Weekly Heart Rate Trend</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis label={{ value: 'BPM', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="heartRate" stroke="hsl(var(--health-heart))" strokeWidth={2} name="Resting HR (bpm)" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-3">Time in Heart Rate Zones</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <BarChart data={heartRateZonesData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis label={{ value: 'Minutes', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Bar dataKey="time" fill="hsl(var(--health-heart))" name="Time (min)" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
             <div className="space-y-3">
               <div className="flex justify-between p-3 bg-gray-50 rounded">
                 <span className="font-semibold">Resting Heart Rate</span>
@@ -154,6 +231,19 @@ const HealthReportShare = () => {
           {/* Respiratory Analysis */}
           <div className="mb-8">
             <h3 className="text-2xl font-bold mb-4">Respiratory Health</h3>
+            <div className="mb-6">
+              <h4 className="text-lg font-semibold mb-3">Weekly Respiratory Rate Trend</h4>
+              <ResponsiveContainer width="100%" height={250}>
+                <LineChart data={weeklyData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="day" />
+                  <YAxis label={{ value: 'Breaths/min', angle: -90, position: 'insideLeft' }} />
+                  <Tooltip />
+                  <Legend />
+                  <Line type="monotone" dataKey="respiratory" stroke="hsl(var(--health-respiratory))" strokeWidth={2} name="Respiratory Rate" />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
             <div className="space-y-3">
               <div className="flex justify-between p-3 bg-gray-50 rounded">
                 <span className="font-semibold">Average Respiratory Rate</span>
