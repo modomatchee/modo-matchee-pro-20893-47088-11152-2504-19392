@@ -174,28 +174,6 @@ const HealthReportShare = () => {
             </div>
           </div>
 
-          {/* Key Insights */}
-          <div className="mb-8">
-            <h3 className="text-2xl font-bold mb-4">AI Health Insights</h3>
-            <div className="space-y-3 text-lg">
-              <p className="p-4 bg-green-50 rounded-lg">✓ Your overall health metrics are in excellent range</p>
-              <p className="p-4 bg-blue-50 rounded-lg">✓ Sleep quality has improved 12% this week</p>
-              <p className="p-4 bg-purple-50 rounded-lg">✓ Cardiovascular fitness shows positive trends</p>
-              <p className="p-4 bg-cyan-50 rounded-lg">✓ Respiratory efficiency is optimal for your activity level</p>
-            </div>
-          </div>
-
-          {/* Recommendations */}
-          <div>
-            <h3 className="text-2xl font-bold mb-4">Recommendations</h3>
-            <ul className="space-y-2 text-lg list-disc list-inside">
-              <li>Maintain current sleep schedule for continued improvements</li>
-              <li>Consider interval training to enhance heart rate recovery</li>
-              <li>Practice breathing exercises for respiratory efficiency</li>
-              <li>Continue monitoring trends for long-term health optimization</li>
-            </ul>
-          </div>
-
           {/* Footer */}
           <div className="mt-12 pt-6 border-t-2 border-gray-300">
             <p className="text-sm text-muted-foreground text-center">

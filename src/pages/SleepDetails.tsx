@@ -38,33 +38,33 @@ const SleepDetails = () => {
 
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center gap-4 mb-8">
-          <Moon className="w-12 h-12 text-purple-600" />
+          <Moon className="w-12 h-12" style={{ color: 'hsl(var(--health-sleep))' }} />
           <h1 className="text-5xl font-bold">Sleep Details</h1>
         </div>
 
         {/* Current Stats */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-purple-50 to-purple-100">
-            <h3 className="text-lg font-semibold text-purple-900 mb-2">Last Night</h3>
-            <p className="text-5xl font-bold text-purple-900">7.5 hrs</p>
-            <p className="text-sm text-purple-700 mt-2">+0.5 hrs from average</p>
+          <Card className="rounded-lg p-6 bg-[hsl(var(--health-sleep-light))] border-[hsl(var(--health-sleep))]">
+            <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--health-sleep))' }}>Last Night</h3>
+            <p className="text-5xl font-bold" style={{ color: 'hsl(var(--health-sleep))' }}>7.5 hrs</p>
+            <p className="text-sm text-muted-foreground mt-2">+0.5 hrs from average</p>
           </Card>
 
-          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-blue-50 to-blue-100">
-            <h3 className="text-lg font-semibold text-blue-900 mb-2">7-Day Average</h3>
-            <p className="text-5xl font-bold text-blue-900">7.7 hrs</p>
-            <p className="text-sm text-blue-700 mt-2">Optimal range</p>
+          <Card className="rounded-lg p-6 bg-muted">
+            <h3 className="text-lg font-semibold mb-2 text-foreground">7-Day Average</h3>
+            <p className="text-5xl font-bold text-foreground">7.7 hrs</p>
+            <p className="text-sm text-muted-foreground mt-2">Optimal range</p>
           </Card>
 
-          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-indigo-50 to-indigo-100">
-            <h3 className="text-lg font-semibold text-indigo-900 mb-2">Sleep Quality</h3>
-            <p className="text-5xl font-bold text-indigo-900">85%</p>
-            <p className="text-sm text-indigo-700 mt-2">Excellent</p>
+          <Card className="rounded-lg p-6 bg-muted">
+            <h3 className="text-lg font-semibold mb-2 text-foreground">Sleep Quality</h3>
+            <p className="text-5xl font-bold text-foreground">85%</p>
+            <p className="text-sm text-muted-foreground mt-2">Excellent</p>
           </Card>
         </div>
 
         {/* Weekly Trend Chart */}
-        <Card className="rounded-[20px] p-8">
+        <Card className="rounded-lg p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold flex items-center gap-2">
               <TrendingUp className="w-8 h-8" />
@@ -75,8 +75,11 @@ const SleepDetails = () => {
           <div className="flex items-end justify-between h-64 gap-4">
             {weekData.map((data, i) => (
               <div key={i} className="flex flex-col items-center flex-1">
-                <div className="w-full bg-purple-500 rounded-t-lg transition-all hover:bg-purple-600" 
-                     style={{ height: `${(data.hours / 10) * 100}%` }}>
+                <div className="w-full rounded-t-lg transition-all" 
+                     style={{ 
+                       height: `${(data.hours / 10) * 100}%`,
+                       backgroundColor: 'hsl(var(--health-sleep))'
+                     }}>
                 </div>
                 <p className="text-sm font-semibold mt-2">{data.day}</p>
                 <p className="text-xs text-muted-foreground">{data.hours}h</p>
@@ -86,25 +89,25 @@ const SleepDetails = () => {
         </Card>
 
         {/* Sleep Stages */}
-        <Card className="rounded-[20px] p-8">
+        <Card className="rounded-lg p-8">
           <h2 className="text-3xl font-bold mb-6">Sleep Stages Breakdown</h2>
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-            <div className="p-6 bg-purple-100 rounded-lg">
+            <div className="p-6 bg-muted rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Awake</h3>
               <p className="text-3xl font-bold">0.5 hrs</p>
               <p className="text-sm text-muted-foreground">7%</p>
             </div>
-            <div className="p-6 bg-blue-100 rounded-lg">
+            <div className="p-6 bg-muted rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Light Sleep</h3>
               <p className="text-3xl font-bold">4.2 hrs</p>
               <p className="text-sm text-muted-foreground">56%</p>
             </div>
-            <div className="p-6 bg-indigo-100 rounded-lg">
-              <h3 className="text-lg font-semibold mb-2">Deep Sleep</h3>
-              <p className="text-3xl font-bold">1.8 hrs</p>
+            <div className="p-6 bg-[hsl(var(--health-sleep-light))] rounded-lg">
+              <h3 className="text-lg font-semibold mb-2" style={{ color: 'hsl(var(--health-sleep))' }}>Deep Sleep</h3>
+              <p className="text-3xl font-bold" style={{ color: 'hsl(var(--health-sleep))' }}>1.8 hrs</p>
               <p className="text-sm text-muted-foreground">24%</p>
             </div>
-            <div className="p-6 bg-violet-100 rounded-lg">
+            <div className="p-6 bg-muted rounded-lg">
               <h3 className="text-lg font-semibold mb-2">REM Sleep</h3>
               <p className="text-3xl font-bold">1.0 hrs</p>
               <p className="text-sm text-muted-foreground">13%</p>
@@ -113,9 +116,9 @@ const SleepDetails = () => {
         </Card>
 
         {/* Insights */}
-        <Card className="rounded-[20px] p-8 bg-gradient-to-br from-purple-50 to-blue-50">
+        <Card className="rounded-lg p-8 bg-[hsl(var(--health-sleep-light))]">
           <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <Calendar className="w-8 h-8" />
+            <Calendar className="w-8 h-8" style={{ color: 'hsl(var(--health-sleep))' }} />
             AI Insights
           </h2>
           <div className="space-y-4">

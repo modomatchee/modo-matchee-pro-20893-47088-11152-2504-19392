@@ -49,66 +49,66 @@ const Health = () => {
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <Card 
-          className="rounded-[20px] border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 cursor-pointer hover:shadow-lg transition-shadow"
+          className="rounded-lg cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-[hsl(var(--health-sleep))] bg-[hsl(var(--health-sleep-light))]"
           onClick={() => navigate("/sleep-details")}
         >
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Moon className="w-6 h-6 text-purple-600" />
-              <CardTitle className="text-purple-900">Sleep</CardTitle>
+              <Moon className="w-6 h-6" style={{ color: 'hsl(var(--health-sleep))' }} />
+              <CardTitle style={{ color: 'hsl(var(--health-sleep))' }}>Sleep</CardTitle>
             </div>
             <CardDescription>Last night</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-purple-900">7.5 hrs</p>
-            <p className="text-sm text-purple-700 mt-2">+0.5 hrs from average</p>
+            <p className="text-4xl font-bold" style={{ color: 'hsl(var(--health-sleep))' }}>7.5 hrs</p>
+            <p className="text-sm mt-2 text-muted-foreground">+0.5 hrs from average</p>
           </CardContent>
         </Card>
 
         <Card 
-          className="rounded-[20px] border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:shadow-lg transition-shadow"
+          className="rounded-lg cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-[hsl(var(--health-heart))] bg-[hsl(var(--health-heart-light))]"
           onClick={() => navigate("/heart-rate-details")}
         >
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Heart className="w-6 h-6 text-red-600" />
-              <CardTitle className="text-red-900">Heart Rate</CardTitle>
+              <Heart className="w-6 h-6" style={{ color: 'hsl(var(--health-heart))' }} />
+              <CardTitle style={{ color: 'hsl(var(--health-heart))' }}>Heart Rate</CardTitle>
             </div>
             <CardDescription>Resting</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-red-900">65 bpm</p>
-            <p className="text-sm text-red-700 mt-2">Normal range</p>
+            <p className="text-4xl font-bold" style={{ color: 'hsl(var(--health-heart))' }}>65 bpm</p>
+            <p className="text-sm mt-2 text-muted-foreground">Normal range</p>
           </CardContent>
         </Card>
 
         <Card 
-          className="rounded-[20px] border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 cursor-pointer hover:shadow-lg transition-shadow"
+          className="rounded-lg cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02] border-[hsl(var(--health-respiratory))] bg-[hsl(var(--health-respiratory-light))]"
           onClick={() => navigate("/respiratory-details")}
         >
           <CardHeader>
             <div className="flex items-center gap-2">
-              <Activity className="w-6 h-6 text-blue-600" />
-              <CardTitle className="text-blue-900">Respiratory Rate</CardTitle>
+              <Activity className="w-6 h-6" style={{ color: 'hsl(var(--health-respiratory))' }} />
+              <CardTitle style={{ color: 'hsl(var(--health-respiratory))' }}>Respiratory Rate</CardTitle>
             </div>
             <CardDescription>Current</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-4xl font-bold text-blue-900">16/min</p>
-            <p className="text-sm text-blue-700 mt-2">Optimal</p>
+            <p className="text-4xl font-bold" style={{ color: 'hsl(var(--health-respiratory))' }}>16/min</p>
+            <p className="text-sm mt-2 text-muted-foreground">Optimal</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-        <Card className="rounded-[20px] p-6">
+        <Card className="rounded-lg p-6">
           <h3 className="text-2xl font-bold mb-4">Sleep Trends</h3>
           <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
             <p className="text-muted-foreground">Chart placeholder</p>
           </div>
         </Card>
 
-        <Card className="rounded-[20px] p-6">
+        <Card className="rounded-lg p-6">
           <h3 className="text-2xl font-bold mb-4">Heart Rate Trends</h3>
           <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
             <p className="text-muted-foreground">Chart placeholder</p>
@@ -116,7 +116,7 @@ const Health = () => {
         </Card>
       </div>
 
-      <Card className="rounded-[20px] p-6 mb-8">
+      <Card className="rounded-lg p-6 mb-8">
         <h3 className="text-2xl font-bold mb-4">Respiratory Rate Trends</h3>
         <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
           <p className="text-muted-foreground">Chart placeholder</p>
@@ -124,17 +124,17 @@ const Health = () => {
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="rounded-[20px] p-6 bg-primary text-white cursor-pointer hover:bg-primary/90 transition-colors" onClick={() => navigate("/medical-history")}>
+        <Card className="rounded-lg p-6 bg-primary text-primary-foreground cursor-pointer hover:bg-primary/90 transition-all hover:scale-[1.02]" onClick={() => navigate("/medical-history")}>
           <h3 className="text-2xl font-bold mb-2">Update Your Medical History</h3>
           <p>Keep your health records up to date</p>
         </Card>
 
-        <Card className="rounded-[20px] p-6 bg-accent hover:bg-accent/90 transition-colors cursor-pointer" onClick={() => navigate("/medications")}>
+        <Card className="rounded-lg p-6 bg-accent text-accent-foreground hover:bg-accent/90 transition-all hover:scale-[1.02] cursor-pointer" onClick={() => navigate("/medications")}>
           <h3 className="text-2xl font-bold mb-2">Your Medications</h3>
           <p>Manage and track your medications</p>
         </Card>
 
-        <Card className="rounded-[20px] p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/health-report")}>
+        <Card className="rounded-lg p-6 text-white cursor-pointer hover:shadow-lg transition-all hover:scale-[1.02]" style={{ background: 'var(--gradient-nutrition)' }} onClick={() => navigate("/health-report")}>
           <h3 className="text-2xl font-bold mb-2">Share Health Report</h3>
           <p>Print or export your complete health report</p>
         </Card>
