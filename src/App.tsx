@@ -11,7 +11,8 @@ import Nutrition from "./pages/Nutrition";
 import CalendarPage from "./pages/CalendarPage";
 import AICoach from "./pages/AICoach";
 import Workouts from "./pages/Workouts";
-import CreateWorkout from "./pages/CreateWorkout";
+import CreateWorkoutLibrary from "./pages/CreateWorkoutLibrary";
+import WorkoutExerciseDetails from "./pages/WorkoutExerciseDetails";
 import LogMeal from "./pages/LogMeal";
 import ExerciseVideos from "./pages/ExerciseVideos";
 import ExerciseDetails from "./pages/ExerciseDetails";
@@ -43,7 +44,8 @@ const App = () => (
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/ai-coach" element={<AICoach />} />
           <Route path="/workouts" element={<Workouts />} />
-          <Route path="/create-workout" element={<CreateWorkout />} />
+          <Route path="/create-workout-library" element={<CreateWorkoutLibrary />} />
+          <Route path="/workout-exercise-details/:id" element={<WorkoutExerciseDetails />} />
           <Route path="/log-meal" element={<LogMeal />} />
           <Route path="/exercise-videos" element={<ExerciseVideos />} />
           <Route path="/exercise-details/:id" element={<ExerciseDetails />} />

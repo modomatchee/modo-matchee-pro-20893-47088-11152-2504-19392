@@ -113,7 +113,7 @@ const Workouts = () => {
 
       {/* Create New Workout */}
       <div 
-        onClick={() => navigate("/create-workout")}
+        onClick={() => navigate("/create-workout-library")}
         className="w-[735px] h-[300px] absolute left-[740px] top-[408px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <p className="text-3xl font-bold text-center text-black">

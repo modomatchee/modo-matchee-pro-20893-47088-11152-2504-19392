@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Play, CheckCircle } from "lucide-react";
 import { EXERCISE_LIST } from "@/lib/exercises";
 
-const ExerciseDetails = () => {
+const WorkoutExerciseDetails = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { loading } = useAuth();
@@ -29,7 +29,6 @@ const ExerciseDetails = () => {
     );
   }
 
-  // Mock additional exercise data - in a real app, this would come from a database
   const exercise = {
     ...exerciseData,
     difficulty: "Beginner",
@@ -59,7 +58,7 @@ const ExerciseDetails = () => {
         <div className="flex items-center justify-between mb-8">
           <h1 className="text-4xl font-bold text-white">{exercise.name}</h1>
           <Button
-            onClick={() => navigate("/exercise-videos")}
+            onClick={() => navigate("/create-workout-library")}
             variant="outline"
             className="bg-white"
           >
@@ -147,7 +146,7 @@ const ExerciseDetails = () => {
         {/* Action Button */}
         <div className="mt-6">
           <Button
-            onClick={() => navigate("/exercise-videos")}
+            onClick={() => navigate("/create-workout-library")}
             variant="outline"
             className="w-full bg-white py-6 text-xl rounded-[15px]"
           >
@@ -159,4 +158,4 @@ const ExerciseDetails = () => {
   );
 };
 
-export default ExerciseDetails;
+export default WorkoutExerciseDetails;

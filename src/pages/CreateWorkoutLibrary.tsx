@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -7,7 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Search, Play } from "lucide-react";
 import { getExercisesByCategory } from "@/lib/exercises";
 
-const ExerciseVideos = () => {
+const CreateWorkoutLibrary = () => {
   const navigate = useNavigate();
   const { loading } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
@@ -34,7 +34,7 @@ const ExerciseVideos = () => {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
-          <h1 className="text-4xl font-bold text-white">Exercise Library</h1>
+          <h1 className="text-4xl font-bold text-white">Create New Workout</h1>
           <Button
             onClick={() => navigate("/workouts")}
             variant="outline"
@@ -75,7 +75,7 @@ const ExerciseVideos = () => {
                   {category.exercises.map((exercise) => (
                     <div key={exercise.id} className="group">
                       <div
-                        onClick={() => navigate(`/exercise-details/${exercise.id}`)}
+                        onClick={() => navigate(`/workout-exercise-details/${exercise.id}`)}
                         className="cursor-pointer"
                       >
                         <div
@@ -105,4 +105,4 @@ const ExerciseVideos = () => {
   );
 };
 
-export default ExerciseVideos;
+export default CreateWorkoutLibrary;
