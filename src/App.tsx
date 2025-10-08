@@ -8,7 +8,7 @@ import Signup from "./pages/Signup";
 import Dashboard from "./pages/Dashboard";
 import Health from "./pages/Health";
 import Nutrition from "./pages/Nutrition";
-import Calendar from "./pages/Calendar";
+import CalendarPage from "./pages/CalendarPage";
 import AICoach from "./pages/AICoach";
 import Workouts from "./pages/Workouts";
 import CreateWorkout from "./pages/CreateWorkout";
@@ -19,6 +19,11 @@ import Medications from "./pages/Medications";
 import MedicalHistory from "./pages/MedicalHistory";
 import ImportMedical from "./pages/ImportMedical";
 import MedicationTracker from "./pages/MedicationTracker";
+import SleepDetails from "./pages/SleepDetails";
+import HeartRateDetails from "./pages/HeartRateDetails";
+import RespiratoryDetails from "./pages/RespiratoryDetails";
+import HealthReportShare from "./pages/HealthReportShare";
+import NutritionDetails from "./pages/NutritionDetails";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,7 +40,7 @@ const App = () => (
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/health" element={<Health />} />
           <Route path="/nutrition" element={<Nutrition />} />
-          <Route path="/calendar" element={<Calendar />} />
+          <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/ai-coach" element={<AICoach />} />
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/create-workout" element={<CreateWorkout />} />
@@ -46,6 +51,11 @@ const App = () => (
           <Route path="/medical-history" element={<MedicalHistory />} />
           <Route path="/import-medical" element={<ImportMedical />} />
           <Route path="/medication-tracker" element={<MedicationTracker />} />
+          <Route path="/sleep-details" element={<SleepDetails />} />
+          <Route path="/heart-rate-details" element={<HeartRateDetails />} />
+          <Route path="/respiratory-details" element={<RespiratoryDetails />} />
+          <Route path="/health-report" element={<HealthReportShare />} />
+          <Route path="/nutrition-details" element={<NutritionDetails />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -114,30 +114,20 @@ const Workouts = () => {
       {/* Create New Workout */}
       <div 
         onClick={() => navigate("/create-workout")}
-        className="w-[735px] h-[169px] absolute left-[740px] top-[408px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+        className="w-[735px] h-[300px] absolute left-[740px] top-[408px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <p className="text-3xl font-bold text-center text-black">
           Create New Workout
         </p>
       </div>
 
-      {/* Exercise Videos */}
+      {/* Exercise Library */}
       <div 
         onClick={() => navigate("/exercise-videos")}
-        className="w-[735px] h-[169px] absolute left-[740px] top-[593px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
+        className="w-[735px] h-[300px] absolute left-[740px] top-[728px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
       >
         <p className="text-3xl font-bold text-center text-black">
-          Exercise Videos
-        </p>
-      </div>
-
-      {/* Exercise Details */}
-      <div 
-        onClick={() => navigate("/exercise-videos")}
-        className="w-[735px] h-[169px] absolute left-[740px] top-[778px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-      >
-        <p className="text-3xl font-bold text-center text-black">
-          Exercise Details
+          Exercise Library
         </p>
       </div>
     </div>

@@ -48,7 +48,10 @@ const Health = () => {
       </Button>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <Card className="rounded-[20px] border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100">
+        <Card 
+          className="rounded-[20px] border-purple-200 bg-gradient-to-br from-purple-50 to-purple-100 cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate("/sleep-details")}
+        >
           <CardHeader>
             <div className="flex items-center gap-2">
               <Moon className="w-6 h-6 text-purple-600" />
@@ -62,7 +65,10 @@ const Health = () => {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[20px] border-red-200 bg-gradient-to-br from-red-50 to-red-100">
+        <Card 
+          className="rounded-[20px] border-red-200 bg-gradient-to-br from-red-50 to-red-100 cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate("/heart-rate-details")}
+        >
           <CardHeader>
             <div className="flex items-center gap-2">
               <Heart className="w-6 h-6 text-red-600" />
@@ -76,7 +82,10 @@ const Health = () => {
           </CardContent>
         </Card>
 
-        <Card className="rounded-[20px] border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100">
+        <Card 
+          className="rounded-[20px] border-blue-200 bg-gradient-to-br from-blue-50 to-blue-100 cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigate("/respiratory-details")}
+        >
           <CardHeader>
             <div className="flex items-center gap-2">
               <Activity className="w-6 h-6 text-blue-600" />
@@ -114,7 +123,7 @@ const Health = () => {
         </div>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <Card className="rounded-[20px] p-6 bg-primary text-white cursor-pointer hover:bg-primary/90 transition-colors" onClick={() => navigate("/medical-history")}>
           <h3 className="text-2xl font-bold mb-2">Update Your Medical History</h3>
           <p>Keep your health records up to date</p>
@@ -123,6 +132,11 @@ const Health = () => {
         <Card className="rounded-[20px] p-6 bg-accent hover:bg-accent/90 transition-colors cursor-pointer" onClick={() => navigate("/medications")}>
           <h3 className="text-2xl font-bold mb-2">Your Medications</h3>
           <p>Manage and track your medications</p>
+        </Card>
+
+        <Card className="rounded-[20px] p-6 bg-gradient-to-br from-green-500 to-emerald-600 text-white cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate("/health-report")}>
+          <h3 className="text-2xl font-bold mb-2">Share Health Report</h3>
+          <p>Print or export your complete health report</p>
         </Card>
       </div>
     </div>

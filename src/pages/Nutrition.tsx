@@ -147,12 +147,21 @@ const Nutrition = () => {
       <Card className="rounded-[29px] bg-white p-8 relative">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-3xl font-bold text-black">Meal Plan</h2>
-          <Button 
-            onClick={() => navigate("/log-meal")}
-            className="rounded-[20px] bg-[#ffd602] hover:bg-[#e6c102] text-black border border-black/10 text-[40px] px-8 py-6 h-auto"
-          >
-            Log Meal
-          </Button>
+          <div className="flex gap-4">
+            <Button 
+              onClick={() => navigate("/nutrition-details")}
+              variant="outline"
+              className="rounded-[20px] text-[24px] px-6 py-5 h-auto"
+            >
+              View Details
+            </Button>
+            <Button 
+              onClick={() => navigate("/log-meal")}
+              className="rounded-[20px] bg-[#ffd602] hover:bg-[#e6c102] text-black border border-black/10 text-[40px] px-8 py-6 h-auto"
+            >
+              Log Meal
+            </Button>
+          </div>
         </div>
 
         {/* Weekly Meal Grid */}
