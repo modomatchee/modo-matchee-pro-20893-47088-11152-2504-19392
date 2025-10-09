@@ -1,12 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { Activity, Wind, TrendingUp } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 const RespiratoryDetails = () => {
   const navigate = useNavigate();
   const { loading } = useAuth();
+  const [timeframe, setTimeframe] = useState("weekly");
 
   if (loading) {
     return (
@@ -16,15 +20,23 @@ const RespiratoryDetails = () => {
     );
   }
 
-  const weekData = [
-    { day: "Mon", rate: 15 },
-    { day: "Tue", rate: 16 },
-    { day: "Wed", rate: 14 },
-    { day: "Thu", rate: 16 },
-    { day: "Fri", rate: 15 },
-    { day: "Sat", rate: 16 },
-    { day: "Sun", rate: 15 },
-  ];
+  const generateChartData = (timeframe: string) => {
+    const labels = {
+      daily: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+      weekly: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      monthly: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+      yearly: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    };
+
+    const label = labels[timeframe as keyof typeof labels];
+    
+    return label.map((name) => ({
+      name,
+      rate: Math.floor(Math.random() * 5 + 14),
+    }));
+  };
+
+  const chartData = generateChartData(timeframe);
 
   return (
     <div className="min-h-screen bg-secondary p-8">
@@ -63,27 +75,48 @@ const RespiratoryDetails = () => {
           </Card>
         </div>
 
-        {/* Weekly Trend Chart */}
+        {/* Respiratory Rate Trend Chart */}
         <Card className="rounded-lg p-8">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <TrendingUp className="w-8 h-8" />
-            Weekly Respiratory Rate Trend
-          </h2>
-          
-          <div className="flex items-end justify-between h-64 gap-4">
-            {weekData.map((data, i) => (
-              <div key={i} className="flex flex-col items-center flex-1">
-                <div className="w-full rounded-t-lg transition-all" 
-                     style={{ 
-                       height: `${(data.rate / 20) * 100}%`,
-                       backgroundColor: 'hsl(var(--health-respiratory))'
-                     }}>
-                </div>
-                <p className="text-sm font-semibold mt-2">{data.day}</p>
-                <p className="text-xs text-muted-foreground">{data.rate}/min</p>
-              </div>
-            ))}
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-bold flex items-center gap-2">
+              <TrendingUp className="w-8 h-8" />
+              Respiratory Rate Trend
+            </h2>
+            <Select value={timeframe} onValueChange={setTimeframe}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px"
+                }} 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="rate" 
+                stroke="hsl(var(--health-respiratory))" 
+                strokeWidth={3}
+                name="Respiratory Rate"
+                dot={{ fill: "hsl(var(--health-respiratory))", r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </Card>
 
         {/* Respiratory Metrics */}

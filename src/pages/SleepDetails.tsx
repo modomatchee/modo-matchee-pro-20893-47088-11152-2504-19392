@@ -1,12 +1,16 @@
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useNavigate } from "react-router-dom";
 import { Moon, TrendingUp, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 const SleepDetails = () => {
   const navigate = useNavigate();
   const { loading } = useAuth();
+  const [timeframe, setTimeframe] = useState("weekly");
 
   if (loading) {
     return (
@@ -16,15 +20,23 @@ const SleepDetails = () => {
     );
   }
 
-  const weekData = [
-    { day: "Mon", hours: 7.2 },
-    { day: "Tue", hours: 8.1 },
-    { day: "Wed", hours: 6.8 },
-    { day: "Thu", hours: 7.5 },
-    { day: "Fri", hours: 7.9 },
-    { day: "Sat", hours: 8.5 },
-    { day: "Sun", hours: 7.8 },
-  ];
+  const generateChartData = (timeframe: string) => {
+    const labels = {
+      daily: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+      weekly: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      monthly: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+      yearly: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    };
+
+    const label = labels[timeframe as keyof typeof labels];
+    
+    return label.map((name) => ({
+      name,
+      hours: Number((Math.random() * 3 + 6).toFixed(1)),
+    }));
+  };
+
+  const chartData = generateChartData(timeframe);
 
   return (
     <div className="min-h-screen bg-secondary p-8">
@@ -63,29 +75,48 @@ const SleepDetails = () => {
           </Card>
         </div>
 
-        {/* Weekly Trend Chart */}
+        {/* Sleep Trend Chart */}
         <Card className="rounded-lg p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-3xl font-bold flex items-center gap-2">
               <TrendingUp className="w-8 h-8" />
-              Weekly Sleep Trend
+              Sleep Trend
             </h2>
+            <Select value={timeframe} onValueChange={setTimeframe}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           
-          <div className="flex items-end justify-between h-64 gap-4">
-            {weekData.map((data, i) => (
-              <div key={i} className="flex flex-col items-center flex-1">
-                <div className="w-full rounded-t-lg transition-all" 
-                     style={{ 
-                       height: `${(data.hours / 10) * 100}%`,
-                       backgroundColor: 'hsl(var(--health-sleep))'
-                     }}>
-                </div>
-                <p className="text-sm font-semibold mt-2">{data.day}</p>
-                <p className="text-xs text-muted-foreground">{data.hours}h</p>
-              </div>
-            ))}
-          </div>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px"
+                }} 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="hours" 
+                stroke="hsl(var(--health-sleep))" 
+                strokeWidth={3}
+                name="Sleep Hours"
+                dot={{ fill: "hsl(var(--health-sleep))", r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </Card>
 
         {/* Sleep Stages */}

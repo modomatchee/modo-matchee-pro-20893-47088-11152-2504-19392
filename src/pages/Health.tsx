@@ -1,12 +1,18 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Heart, Activity, Moon } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { useState } from "react";
+import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
 
 const Health = () => {
   const navigate = useNavigate();
   const { loading } = useAuth();
+  const [sleepTimeframe, setSleepTimeframe] = useState("weekly");
+  const [heartTimeframe, setHeartTimeframe] = useState("weekly");
+  const [respiratoryTimeframe, setRespiratoryTimeframe] = useState("weekly");
 
   if (loading) {
     return (
@@ -16,26 +22,32 @@ const Health = () => {
     );
   }
 
-  const healthMetrics = [
-    {
-      title: "Sleep",
-      subtitle: "Sleep Trend",
-      gradient: "bg-gradient-to-l from-[#0e969d] to-[#056d80]",
-      value: "7.5 hrs",
-    },
-    {
-      title: "Heart Rate",
-      subtitle: "Heart Rate Trends",
-      gradient: "bg-gradient-to-r from-[#ff0037] to-[#ff589a]",
-      value: "72 bpm",
-    },
-    {
-      title: "Respiratory Rate",
-      subtitle: "Respiratory Rate",
-      gradient: "bg-gradient-to-r from-[#2d37ff] to-[#317dff]",
-      value: "16 /min",
-    },
-  ];
+  const generateChartData = (timeframe: string, type: "sleep" | "heart" | "respiratory") => {
+    const baseValues = {
+      sleep: { min: 6, max: 9 },
+      heart: { min: 60, max: 75 },
+      respiratory: { min: 14, max: 18 },
+    };
+
+    const labels = {
+      daily: Array.from({ length: 24 }, (_, i) => `${i}:00`),
+      weekly: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+      monthly: Array.from({ length: 30 }, (_, i) => `Day ${i + 1}`),
+      yearly: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+    };
+
+    const label = labels[timeframe as keyof typeof labels];
+    const { min, max } = baseValues[type];
+
+    return label.map((day) => ({
+      name: day,
+      value: Number((Math.random() * (max - min) + min).toFixed(1)),
+    }));
+  };
+
+  const sleepData = generateChartData(sleepTimeframe, "sleep");
+  const heartData = generateChartData(heartTimeframe, "heart");
+  const respiratoryData = generateChartData(respiratoryTimeframe, "respiratory");
 
   return (
     <div className="min-h-screen bg-secondary p-8">
@@ -102,25 +114,118 @@ const Health = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         <Card className="rounded-lg p-6">
-          <h3 className="text-2xl font-bold mb-4">Sleep Trends</h3>
-          <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-            <p className="text-muted-foreground">Chart placeholder</p>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold">Sleep Trends</h3>
+            <Select value={sleepTimeframe} onValueChange={setSleepTimeframe}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={sleepData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px"
+                }} 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke="hsl(var(--health-sleep))" 
+                strokeWidth={3}
+                dot={{ fill: "hsl(var(--health-sleep))", r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </Card>
 
         <Card className="rounded-lg p-6">
-          <h3 className="text-2xl font-bold mb-4">Heart Rate Trends</h3>
-          <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-            <p className="text-muted-foreground">Chart placeholder</p>
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-2xl font-bold">Heart Rate Trends</h3>
+            <Select value={heartTimeframe} onValueChange={setHeartTimeframe}>
+              <SelectTrigger className="w-[140px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="daily">Daily</SelectItem>
+                <SelectItem value="weekly">Weekly</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
+                <SelectItem value="yearly">Yearly</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <ResponsiveContainer width="100%" height={250}>
+            <LineChart data={heartData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: "hsl(var(--card))", 
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: "8px"
+                }} 
+              />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                stroke="hsl(var(--health-heart))" 
+                strokeWidth={3}
+                dot={{ fill: "hsl(var(--health-heart))", r: 4 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
         </Card>
       </div>
 
       <Card className="rounded-lg p-6 mb-8">
-        <h3 className="text-2xl font-bold mb-4">Respiratory Rate Trends</h3>
-        <div className="h-64 bg-muted rounded-lg flex items-center justify-center">
-          <p className="text-muted-foreground">Chart placeholder</p>
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="text-2xl font-bold">Respiratory Rate Trends</h3>
+          <Select value={respiratoryTimeframe} onValueChange={setRespiratoryTimeframe}>
+            <SelectTrigger className="w-[140px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="daily">Daily</SelectItem>
+              <SelectItem value="weekly">Weekly</SelectItem>
+              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="yearly">Yearly</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={respiratoryData}>
+            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+            <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: "hsl(var(--card))", 
+                border: "1px solid hsl(var(--border))",
+                borderRadius: "8px"
+              }} 
+            />
+            <Line 
+              type="monotone" 
+              dataKey="value" 
+              stroke="hsl(var(--health-respiratory))" 
+              strokeWidth={3}
+              dot={{ fill: "hsl(var(--health-respiratory))", r: 4 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
       </Card>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
