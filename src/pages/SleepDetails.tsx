@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { Moon, TrendingUp, Calendar } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useState } from "react";
-import { LineChart, Line, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
+import { LineChart, Line, BarChart, Bar, ResponsiveContainer, XAxis, YAxis, Tooltip, CartesianGrid, Legend } from "recharts";
 
 const SleepDetails = () => {
   const navigate = useNavigate();
@@ -122,6 +122,36 @@ const SleepDetails = () => {
         {/* Sleep Stages */}
         <Card className="rounded-lg p-8">
           <h2 className="text-3xl font-bold mb-6">Sleep Stages Breakdown</h2>
+          
+          {/* Sleep Stage Chart */}
+          <div className="mb-8">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={[
+                { stage: 'Awake', hours: 0.5, percentage: 7, fill: 'hsl(var(--muted))' },
+                { stage: 'Light Sleep', hours: 4.2, percentage: 56, fill: 'hsl(var(--accent))' },
+                { stage: 'Deep Sleep', hours: 1.8, percentage: 24, fill: 'hsl(var(--health-sleep))' },
+                { stage: 'REM Sleep', hours: 1.0, percentage: 13, fill: 'hsl(var(--primary))' }
+              ]}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="stage" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} label={{ value: 'Hours', angle: -90, position: 'insideLeft' }} />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: "hsl(var(--card))", 
+                    border: "1px solid hsl(var(--border))",
+                    borderRadius: "8px"
+                  }}
+                  formatter={(value: number, name: string, props: any) => [
+                    `${value} hrs (${props.payload.percentage}%)`,
+                    name === 'hours' ? 'Duration' : name
+                  ]}
+                />
+                <Legend />
+                <Bar dataKey="hours" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             <div className="p-6 bg-muted rounded-lg">
               <h3 className="text-lg font-semibold mb-2">Awake</h3>

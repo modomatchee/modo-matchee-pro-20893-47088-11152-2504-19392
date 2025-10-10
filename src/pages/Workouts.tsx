@@ -55,80 +55,109 @@ const Workouts = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#8f8f8f] relative overflow-hidden">
-      <Button
-        onClick={() => navigate("/dashboard")}
-        variant="outline"
-        className="absolute top-4 left-4 z-10"
-      >
-        ← Back to Dashboard
-      </Button>
+    <div className="min-h-screen bg-secondary p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-5xl font-bold">Workout Hub</h1>
+          <Button
+            onClick={() => navigate("/dashboard")}
+            variant="outline"
+          >
+            ← Back to Dashboard
+          </Button>
+        </div>
 
-      {/* Profile Image */}
-      <div className="w-[65px] h-[65px] absolute right-0 top-0 bg-gray-300 rounded-full overflow-hidden">
-        <div className="w-full h-full bg-gradient-to-br from-gray-400 to-gray-500"></div>
-      </div>
-
-      {/* My Workouts Section */}
-      <div className="w-full max-w-[1480px] h-[252px] absolute left-4 top-[53px] rounded-[20px] bg-white">
-        <p className="absolute left-10 top-8 text-base text-black">My Workouts</p>
-        
-        {/* Horizontal Scrolling Workout Cards */}
-        <div className="absolute top-[73px] left-[13px] flex gap-[43px] overflow-x-auto pb-4">
-          {workouts.length === 0 ? (
-            <div className="flex-shrink-0">
-              <div className="w-[150px] h-[150px] rounded-[20px] bg-white border border-black/[0.13] flex items-center justify-center">
-                <p className="text-sm text-center text-black/50 px-2">
-                  No workouts yet
-                </p>
-              </div>
-            </div>
-          ) : (
-            workouts.map((workout) => (
-              <div key={workout.id} className="flex-shrink-0">
-                <div 
-                  className="w-[150px] h-[150px] rounded-[20px] bg-white border border-black/[0.13] flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={() => navigate(`/workout/${workout.id}`)}
-                >
-                  <p className="text-xl font-bold text-center text-black px-2">
-                    {workout.name}
+        {/* My Workouts Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold mb-4">My Workouts</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {workouts.length === 0 ? (
+              <div className="col-span-full">
+                <div className="rounded-lg bg-card p-12 border-2 border-dashed border-border text-center">
+                  <p className="text-lg text-muted-foreground">
+                    No workouts yet. Create your first workout to get started!
                   </p>
                 </div>
               </div>
-            ))
-          )}
+            ) : (
+              workouts.map((workout) => (
+                <div 
+                  key={workout.id}
+                  onClick={() => navigate(`/workout-preview/${workout.id}`)}
+                  className="group cursor-pointer"
+                >
+                  <div className="rounded-lg bg-card p-6 border border-border hover:border-primary transition-all hover:shadow-lg h-full flex flex-col">
+                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                      {workout.name}
+                    </h3>
+                    {workout.description && (
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {workout.description}
+                      </p>
+                    )}
+                    <div className="mt-auto">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </div>
 
-      {/* Workout Summary Section */}
-      <div className="w-[675px] h-[592px] absolute left-6 top-[366px] rounded-[15px] bg-white">
-        <p className="w-full h-[71px] flex items-center justify-center text-3xl font-bold text-black">
-          Workout Summary
-        </p>
-        <div className="w-full h-[2px] bg-black"></div>
-        <p className="absolute top-[260px] left-1/2 -translate-x-1/2 w-[503px] text-xl font-bold text-center text-black/[0.42]">
-          AI Description of User's Workout Routine
-        </p>
-      </div>
+        {/* Workout Actions Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Workout Summary */}
+          <div className="rounded-lg bg-card p-8 border border-border">
+            <h2 className="text-3xl font-bold mb-4 text-center">Workout Summary</h2>
+            <div className="border-t border-border my-4"></div>
+            <div className="flex items-center justify-center min-h-[200px]">
+              <p className="text-xl text-center text-muted-foreground max-w-md">
+                {workouts.length > 0 
+                  ? "Track your progress and view insights about your workout routine"
+                  : "Create workouts to see your personalized summary and insights"}
+              </p>
+            </div>
+          </div>
 
-      {/* Create New Workout */}
-      <div 
-        onClick={() => navigate("/create-workout-library")}
-        className="w-[735px] h-[300px] absolute left-[740px] top-[408px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-      >
-        <p className="text-3xl font-bold text-center text-black">
-          Create New Workout
-        </p>
-      </div>
+          {/* Create New Workout */}
+          <div 
+            onClick={() => navigate("/create-workout-library")}
+            className="rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 p-8 border-2 border-primary/20 hover:border-primary cursor-pointer transition-all hover:shadow-lg group"
+          >
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="w-16 h-16 rounded-full bg-primary/20 group-hover:bg-primary/30 flex items-center justify-center mb-4 transition-colors">
+                <span className="text-3xl">+</span>
+              </div>
+              <h2 className="text-3xl font-bold group-hover:text-primary transition-colors">
+                Create New Workout
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                Build a custom routine
+              </p>
+            </div>
+          </div>
 
-      {/* Exercise Library */}
-      <div 
-        onClick={() => navigate("/exercise-videos")}
-        className="w-[735px] h-[300px] absolute left-[740px] top-[728px] rounded-[15px] bg-white flex items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors"
-      >
-        <p className="text-3xl font-bold text-center text-black">
-          Exercise Library
-        </p>
+          {/* Exercise Library */}
+          <div 
+            onClick={() => navigate("/exercise-videos")}
+            className="rounded-lg bg-gradient-to-br from-accent/10 to-accent/5 p-8 border-2 border-accent/20 hover:border-accent cursor-pointer transition-all hover:shadow-lg group lg:col-span-2"
+          >
+            <div className="flex flex-col items-center justify-center h-full text-center">
+              <div className="w-16 h-16 rounded-full bg-accent/20 group-hover:bg-accent/30 flex items-center justify-center mb-4 transition-colors">
+                <span className="text-3xl">📚</span>
+              </div>
+              <h2 className="text-3xl font-bold group-hover:text-accent transition-colors">
+                Exercise Library
+              </h2>
+              <p className="text-muted-foreground mt-2">
+                Browse hundreds of exercises with video guides
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

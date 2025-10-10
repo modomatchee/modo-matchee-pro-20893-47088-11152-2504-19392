@@ -25,6 +25,8 @@ import HeartRateDetails from "./pages/HeartRateDetails";
 import RespiratoryDetails from "./pages/RespiratoryDetails";
 import HealthReportShare from "./pages/HealthReportShare";
 import NutritionDetails from "./pages/NutritionDetails";
+import WorkoutPreview from "./pages/WorkoutPreview";
+import WorkoutPlayer from "./pages/WorkoutPlayer";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -58,6 +60,8 @@ const App = () => (
           <Route path="/respiratory-details" element={<RespiratoryDetails />} />
           <Route path="/health-report" element={<HealthReportShare />} />
           <Route path="/nutrition-details" element={<NutritionDetails />} />
+          <Route path="/workout-preview/:id" element={<WorkoutPreview />} />
+          <Route path="/workout-player/:id" element={<WorkoutPlayer />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
