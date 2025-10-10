@@ -24,6 +24,9 @@ const Workouts = () => {
     }
   }, [session]);
 
+  // Get 3 most recent workouts
+  const recentWorkouts = workouts.slice(0, 3);
+
   const fetchWorkouts = async () => {
     try {
       const { data, error } = await supabase
@@ -67,9 +70,41 @@ const Workouts = () => {
           </Button>
         </div>
 
+        {/* Recent Workouts Section */}
+        {workouts.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-3xl font-bold mb-4">Recent Workouts</h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {recentWorkouts.map((workout) => (
+                <div 
+                  key={workout.id}
+                  onClick={() => navigate(`/workout-preview/${workout.id}`)}
+                  className="group cursor-pointer"
+                >
+                  <div className="rounded-lg bg-card p-6 border border-border hover:border-primary transition-all hover:shadow-lg h-full flex flex-col">
+                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
+                      {workout.name}
+                    </h3>
+                    {workout.description && (
+                      <p className="text-sm text-muted-foreground mb-4">
+                        {workout.description}
+                      </p>
+                    )}
+                    <div className="mt-auto">
+                      <p className="text-sm font-medium text-muted-foreground">
+                        {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* My Workouts Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-4">My Workouts</h2>
+          <h2 className="text-3xl font-bold mb-4">All Workouts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {workouts.length === 0 ? (
               <div className="col-span-full">
