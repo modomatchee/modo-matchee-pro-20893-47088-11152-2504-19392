@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Scan, Plus } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const LogMeal = () => {
   const navigate = useNavigate();
@@ -64,9 +64,6 @@ const LogMeal = () => {
     }
   };
 
-  const handleBarcodeScanner = () => {
-    toast.info("Barcode scanner feature coming soon!");
-  };
 
   return (
     <div className="min-h-screen bg-[#eaeaea] p-8">
@@ -80,18 +77,7 @@ const LogMeal = () => {
 
       <Card className="max-w-2xl mx-auto rounded-[29px]">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-3xl">Log Meal</CardTitle>
-            <Button
-              type="button"
-              onClick={handleBarcodeScanner}
-              variant="outline"
-              className="rounded-[15px]"
-            >
-              <Scan className="w-5 h-5 mr-2" />
-              Scan Barcode
-            </Button>
-          </div>
+          <CardTitle className="text-3xl">Log Meal</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">

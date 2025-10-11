@@ -18,14 +18,14 @@ const Workouts = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [loadingWorkouts, setLoadingWorkouts] = useState(true);
 
+  const [workoutSessions, setWorkoutSessions] = useState<any[]>([]);
+
   useEffect(() => {
     if (session?.user) {
       fetchWorkouts();
+      fetchWorkoutSessions();
     }
   }, [session]);
-
-  // Get 3 most recent workouts
-  const recentWorkouts = workouts.slice(0, 3);
 
   const fetchWorkouts = async () => {
     try {
@@ -46,6 +46,21 @@ const Workouts = () => {
       toast.error('Failed to load workouts');
     } finally {
       setLoadingWorkouts(false);
+    }
+  };
+
+  const fetchWorkoutSessions = async () => {
+    try {
+      const { data, error } = await (supabase as any)
+        .from('workout_sessions')
+        .select('*')
+        .order('date', { ascending: false })
+        .limit(10);
+
+      if (error) throw error;
+      setWorkoutSessions(data || []);
+    } catch (error) {
+      console.error('Error fetching workout sessions:', error);
     }
   };
 
@@ -70,41 +85,9 @@ const Workouts = () => {
           </Button>
         </div>
 
-        {/* Recent Workouts Section */}
-        {workouts.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-3xl font-bold mb-4">Recent Workouts</h2>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {recentWorkouts.map((workout) => (
-                <div 
-                  key={workout.id}
-                  onClick={() => navigate(`/workout-preview/${workout.id}`)}
-                  className="group cursor-pointer"
-                >
-                  <div className="rounded-lg bg-card p-6 border border-border hover:border-primary transition-all hover:shadow-lg h-full flex flex-col">
-                    <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">
-                      {workout.name}
-                    </h3>
-                    {workout.description && (
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {workout.description}
-                      </p>
-                    )}
-                    <div className="mt-auto">
-                      <p className="text-sm font-medium text-muted-foreground">
-                        {workout.exercises.length} exercise{workout.exercises.length !== 1 ? 's' : ''}
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* My Workouts Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold mb-4">All Workouts</h2>
+          <h2 className="text-3xl font-bold mb-4">My Workouts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {workouts.length === 0 ? (
               <div className="col-span-full">
@@ -142,6 +125,65 @@ const Workouts = () => {
           </div>
         </div>
 
+        {/* Workout Activity Log */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold mb-4">Workout Activity Log</h2>
+          <div className="rounded-lg bg-card p-6 border border-border">
+            {workoutSessions.length === 0 ? (
+              <div className="text-center py-12">
+                <p className="text-lg text-muted-foreground">
+                  No workout sessions logged yet. Start a workout to track your progress!
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {workoutSessions.map((session) => (
+                  <div
+                    key={session.id}
+                    className="flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <div className="flex-1">
+                      <h3 className="text-xl font-bold">{session.workout_name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {new Date(session.date).toLocaleDateString('en-US', { 
+                          weekday: 'long', 
+                          year: 'numeric', 
+                          month: 'long', 
+                          day: 'numeric' 
+                        })}
+                      </p>
+                    </div>
+                    <div className="flex gap-6 text-center">
+                      <div>
+                        <p className="text-2xl font-bold">{session.duration}</p>
+                        <p className="text-xs text-muted-foreground">minutes</p>
+                      </div>
+                      {session.calories_burned > 0 && (
+                        <div>
+                          <p className="text-2xl font-bold">{session.calories_burned}</p>
+                          <p className="text-xs text-muted-foreground">calories</p>
+                        </div>
+                      )}
+                      {session.sets_completed > 0 && (
+                        <div>
+                          <p className="text-2xl font-bold">{session.sets_completed}</p>
+                          <p className="text-xs text-muted-foreground">sets</p>
+                        </div>
+                      )}
+                      {session.reps_completed > 0 && (
+                        <div>
+                          <p className="text-2xl font-bold">{session.reps_completed}</p>
+                          <p className="text-xs text-muted-foreground">reps</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Workout Actions Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Workout Summary */}
@@ -149,11 +191,23 @@ const Workouts = () => {
             <h2 className="text-3xl font-bold mb-4 text-center">Workout Summary</h2>
             <div className="border-t border-border my-4"></div>
             <div className="flex items-center justify-center min-h-[200px]">
-              <p className="text-xl text-center text-muted-foreground max-w-md">
-                {workouts.length > 0 
-                  ? "Track your progress and view insights about your workout routine"
-                  : "Create workouts to see your personalized summary and insights"}
-              </p>
+              <div className="text-center space-y-4">
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-4xl font-bold">{workouts.length}</p>
+                    <p className="text-sm text-muted-foreground">Total Workouts</p>
+                  </div>
+                  <div>
+                    <p className="text-4xl font-bold">{workoutSessions.length}</p>
+                    <p className="text-sm text-muted-foreground">Sessions Logged</p>
+                  </div>
+                </div>
+                {workoutSessions.length > 0 && (
+                  <p className="text-sm text-muted-foreground max-w-md">
+                    Keep up the great work! Track your progress and view insights about your workout routine.
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 

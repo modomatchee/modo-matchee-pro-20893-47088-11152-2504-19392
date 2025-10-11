@@ -6,11 +6,13 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Plus, TrendingUp, Target } from "lucide-react";
 import { toast } from "sonner";
+import { PresetMealsDialog } from "@/components/PresetMealsDialog";
 
 const Nutrition = () => {
   const navigate = useNavigate();
   const { loading, session } = useAuth();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [showPresetMeals, setShowPresetMeals] = useState(false);
   const [nutritionGoals, setNutritionGoals] = useState({
     daily_calories: 2680,
     daily_protein: 150,
@@ -280,10 +282,7 @@ const Nutrition = () => {
           Log Meal
         </Button>
         <Button
-          onClick={() => {
-            // Quick Add functionality
-            toast.info("Quick Add feature coming soon!");
-          }}
+          onClick={() => setShowPresetMeals(true)}
           variant="outline"
           className="h-24 text-xl rounded-[20px]"
         >
@@ -351,6 +350,12 @@ const Nutrition = () => {
           </div>
         )}
       </Card>
+
+      <PresetMealsDialog 
+        open={showPresetMeals} 
+        onOpenChange={setShowPresetMeals}
+        onSelectMeal={() => fetchTodayMeals()}
+      />
     </div>
   );
 };

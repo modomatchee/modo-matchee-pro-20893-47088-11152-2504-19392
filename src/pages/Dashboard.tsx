@@ -89,7 +89,7 @@ const Dashboard = () => {
                 Ask AI Coach
               </Button>
               <Button 
-                onClick={() => navigate("/nutrition")}
+                onClick={() => navigate("/log-meal")}
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-white text-xl rounded-[20px]"
               >
                 Log Meal
