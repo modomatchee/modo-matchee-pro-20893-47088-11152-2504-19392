@@ -27,6 +27,11 @@ import HealthReportShare from "./pages/HealthReportShare";
 import NutritionDetails from "./pages/NutritionDetails";
 import WorkoutPreview from "./pages/WorkoutPreview";
 import WorkoutPlayer from "./pages/WorkoutPlayer";
+import Welcome from "./pages/onboarding/Welcome";
+import HealthInfo from "./pages/onboarding/HealthInfo";
+import GeneralInfo from "./pages/onboarding/GeneralInfo";
+import NutritionGoals from "./pages/onboarding/NutritionGoals";
+import Barriers from "./pages/onboarding/Barriers";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +45,11 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/onboarding/welcome" element={<Welcome />} />
+          <Route path="/onboarding/health-info" element={<HealthInfo />} />
+          <Route path="/onboarding/general-info" element={<GeneralInfo />} />
+          <Route path="/onboarding/nutrition-goals" element={<NutritionGoals />} />
+          <Route path="/onboarding/barriers" element={<Barriers />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/health" element={<Health />} />
           <Route path="/nutrition" element={<Nutrition />} />

@@ -43,7 +43,7 @@ const Signup = () => {
 
       if (data.user) {
         toast.success("Account created successfully!");
-        navigate("/dashboard");
+        navigate("/onboarding/welcome");
       }
     } catch (error) {
       if (error instanceof z.ZodError) {

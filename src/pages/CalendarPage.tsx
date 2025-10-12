@@ -183,8 +183,8 @@ const CalendarPage = () => {
 
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="bg-primary hover:bg-primary/90 text-white rounded-[20px] h-12 px-6">
-                <Plus className="mr-2" /> New Event
+              <Button className="bg-primary hover:bg-primary/90 text-white rounded-full h-14 px-8 shadow-lg hover:shadow-xl transition-all font-semibold text-base">
+                <Plus className="mr-2 w-5 h-5" /> New Event
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl">
