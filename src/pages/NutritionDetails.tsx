@@ -1,84 +1,14 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { UtensilsCrossed, TrendingDown } from "lucide-react";
+import { UtensilsCrossed, TrendingUp, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { supabase } from "@/integrations/supabase/client";
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 const NutritionDetails = () => {
   const navigate = useNavigate();
-  const { loading, session } = useAuth();
-  const [timeRange, setTimeRange] = useState("week");
-  const [nutritionData, setNutritionData] = useState<any[]>([]);
-  const [weightData, setWeightData] = useState<any[]>([]);
-
-  useEffect(() => {
-    if (session?.user) {
-      fetchNutritionData();
-      fetchWeightData();
-    }
-  }, [session, timeRange]);
-
-  const fetchNutritionData = async () => {
-    try {
-      const daysToFetch = timeRange === "week" ? 7 : timeRange === "month" ? 30 : 365;
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysToFetch);
-
-      const { data, error } = await (supabase as any)
-        .from('meals')
-        .select('*')
-        .gte('meal_time', startDate.toISOString())
-        .order('meal_time');
-
-      if (error) throw error;
-
-      // Aggregate data by date
-      const aggregated: any = {};
-      data?.forEach((meal: any) => {
-        const date = new Date(meal.meal_time).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-        if (!aggregated[date]) {
-          aggregated[date] = { date, calories: 0, protein: 0, carbs: 0, fats: 0 };
-        }
-        aggregated[date].calories += meal.total_calories;
-        aggregated[date].protein += meal.total_protein;
-        aggregated[date].carbs += meal.total_carbs;
-        aggregated[date].fats += meal.total_fats;
-      });
-
-      setNutritionData(Object.values(aggregated));
-    } catch (error) {
-      console.error('Error fetching nutrition data:', error);
-    }
-  };
-
-  const fetchWeightData = async () => {
-    try {
-      const daysToFetch = timeRange === "week" ? 7 : timeRange === "month" ? 30 : 365;
-      const startDate = new Date();
-      startDate.setDate(startDate.getDate() - daysToFetch);
-
-      const { data, error } = await (supabase as any)
-        .from('weight_logs')
-        .select('*')
-        .gte('logged_at', startDate.toISOString())
-        .order('logged_at');
-
-      if (error) throw error;
-
-      const formattedData = data?.map((log: any) => ({
-        date: new Date(log.logged_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-        weight: parseFloat(log.weight),
-      })) || [];
-
-      setWeightData(formattedData);
-    } catch (error) {
-      console.error('Error fetching weight data:', error);
-    }
-  };
+  const { loading } = useAuth();
+  const [expandedMeal, setExpandedMeal] = useState<string | null>(null);
 
   if (loading) {
     return (
@@ -87,6 +17,80 @@ const NutritionDetails = () => {
       </div>
     );
   }
+
+  const meals = [
+    {
+      id: "breakfast",
+      name: "Breakfast",
+      time: "8:00 AM",
+      calories: 450,
+      protein: 25,
+      carbs: 55,
+      fats: 12,
+      items: [
+        { name: "Oatmeal with berries", calories: 250, protein: 8, carbs: 45, fats: 5 },
+        { name: "Greek yogurt", calories: 150, protein: 15, carbs: 8, fats: 5 },
+        { name: "Orange juice", calories: 50, protein: 2, carbs: 2, fats: 2 },
+      ]
+    },
+    {
+      id: "lunch",
+      name: "Lunch",
+      time: "1:00 PM",
+      calories: 650,
+      protein: 40,
+      carbs: 65,
+      fats: 18,
+      items: [
+        { name: "Grilled chicken breast", calories: 300, protein: 35, carbs: 0, fats: 8 },
+        { name: "Brown rice", calories: 200, protein: 4, carbs: 45, fats: 2 },
+        { name: "Mixed vegetables", calories: 100, protein: 3, carbs: 15, fats: 3 },
+        { name: "Avocado slices", calories: 50, protein: 1, carbs: 5, fats: 5 },
+      ]
+    },
+    {
+      id: "dinner",
+      name: "Dinner",
+      time: "7:00 PM",
+      calories: 700,
+      protein: 45,
+      carbs: 70,
+      fats: 20,
+      items: [
+        { name: "Salmon fillet", calories: 350, protein: 30, carbs: 0, fats: 15 },
+        { name: "Sweet potato", calories: 180, protein: 3, carbs: 40, fats: 0 },
+        { name: "Broccoli", calories: 50, protein: 4, carbs: 10, fats: 0 },
+        { name: "Quinoa salad", calories: 120, protein: 8, carbs: 20, fats: 5 },
+      ]
+    },
+    {
+      id: "snacks",
+      name: "Snacks",
+      time: "Throughout day",
+      calories: 280,
+      protein: 10,
+      carbs: 30,
+      fats: 10,
+      items: [
+        { name: "Protein shake", calories: 150, protein: 20, carbs: 10, fats: 3 },
+        { name: "Apple with almond butter", calories: 130, protein: 3, carbs: 20, fats: 7 },
+      ]
+    }
+  ];
+
+  const weeklyTrends = [
+    { day: "Mon", calories: 2100, protein: 120 },
+    { day: "Tue", calories: 2050, protein: 115 },
+    { day: "Wed", calories: 2200, protein: 130 },
+    { day: "Thu", calories: 2080, protein: 118 },
+    { day: "Fri", calories: 2150, protein: 125 },
+    { day: "Sat", calories: 2300, protein: 135 },
+    { day: "Sun", calories: 2080, protein: 120 },
+  ];
+
+  const toggleMeal = (mealId: string) => {
+    setExpandedMeal(expandedMeal === mealId ? null : mealId);
+  };
 
   return (
     <div className="min-h-screen bg-secondary p-8">
@@ -99,100 +103,148 @@ const NutritionDetails = () => {
       </Button>
 
       <div className="max-w-7xl mx-auto space-y-6">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-4">
-            <UtensilsCrossed className="w-12 h-12 text-primary" />
-            <h1 className="text-5xl font-bold">Nutrition Details</h1>
-          </div>
-          <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-[180px]">
-              <SelectValue placeholder="Select timeframe" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="week">This Week</SelectItem>
-              <SelectItem value="month">This Month</SelectItem>
-              <SelectItem value="year">This Year</SelectItem>
-            </SelectContent>
-          </Select>
+        <div className="flex items-center gap-4 mb-8">
+          <UtensilsCrossed className="w-12 h-12 text-green-600" />
+          <h1 className="text-5xl font-bold">Nutrition Details</h1>
         </div>
 
-        {/* Nutrition Trends Charts */}
+        {/* Daily Summary */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-orange-50 to-orange-100">
+            <h3 className="text-lg font-semibold text-orange-900 mb-2">Total Calories</h3>
+            <p className="text-5xl font-bold text-orange-900">2,080</p>
+            <p className="text-sm text-orange-700 mt-2">Goal: 2,680</p>
+          </Card>
+
+          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-red-50 to-red-100">
+            <h3 className="text-lg font-semibold text-red-900 mb-2">Protein</h3>
+            <p className="text-5xl font-bold text-red-900">120g</p>
+            <p className="text-sm text-red-700 mt-2">Goal: 150g</p>
+          </Card>
+
+          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-yellow-50 to-yellow-100">
+            <h3 className="text-lg font-semibold text-yellow-900 mb-2">Carbs</h3>
+            <p className="text-5xl font-bold text-yellow-900">220g</p>
+            <p className="text-sm text-yellow-700 mt-2">Goal: 300g</p>
+          </Card>
+
+          <Card className="rounded-[20px] p-6 bg-gradient-to-br from-blue-50 to-blue-100">
+            <h3 className="text-lg font-semibold text-blue-900 mb-2">Fats</h3>
+            <p className="text-5xl font-bold text-blue-900">60g</p>
+            <p className="text-sm text-blue-700 mt-2">Goal: 75g</p>
+          </Card>
+        </div>
+
+        {/* Meal Breakdown */}
         <Card className="rounded-[20px] p-8">
-          <h2 className="text-3xl font-bold mb-6">Nutrition Trends</h2>
+          <h2 className="text-3xl font-bold mb-6">Today's Meals</h2>
+          <div className="space-y-4">
+            {meals.map((meal) => (
+              <div key={meal.id} className="border-2 border-gray-200 rounded-lg overflow-hidden">
+                <div 
+                  className="p-6 bg-white cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={() => toggleMeal(meal.id)}
+                >
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-2xl font-bold">{meal.name}</h3>
+                      <p className="text-sm text-muted-foreground">{meal.time}</p>
+                    </div>
+                    <div className="flex items-center gap-8">
+                      <div className="text-right">
+                        <p className="text-3xl font-bold">{meal.calories}</p>
+                        <p className="text-sm text-muted-foreground">calories</p>
+                      </div>
+                      <div className="flex gap-6">
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-red-600">{meal.protein}g</p>
+                          <p className="text-xs text-muted-foreground">Protein</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-orange-600">{meal.carbs}g</p>
+                          <p className="text-xs text-muted-foreground">Carbs</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-xl font-bold text-yellow-600">{meal.fats}g</p>
+                          <p className="text-xs text-muted-foreground">Fats</p>
+                        </div>
+                      </div>
+                      {expandedMeal === meal.id ? <ChevronUp /> : <ChevronDown />}
+                    </div>
+                  </div>
+                </div>
+
+                {expandedMeal === meal.id && (
+                  <div className="p-6 bg-gray-50 border-t-2 border-gray-200">
+                    <h4 className="text-lg font-semibold mb-4">Food Items:</h4>
+                    <div className="space-y-3">
+                      {meal.items.map((item, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-4 bg-white rounded-lg">
+                          <span className="font-medium">{item.name}</span>
+                          <div className="flex gap-6">
+                            <span className="text-sm">{item.calories} cal</span>
+                            <span className="text-sm text-red-600">P: {item.protein}g</span>
+                            <span className="text-sm text-orange-600">C: {item.carbs}g</span>
+                            <span className="text-sm text-yellow-600">F: {item.fats}g</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        {/* Weekly Trends */}
+        <Card className="rounded-[20px] p-8">
+          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
+            <TrendingUp className="w-8 h-8" />
+            Weekly Nutrition Trends
+          </h2>
           
           <div className="space-y-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-primary">Calorie Intake</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={nutritionData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="calories" fill="hsl(var(--primary))" name="Calories" />
-                </BarChart>
-              </ResponsiveContainer>
+              <h3 className="text-lg font-semibold mb-4 text-orange-600">Daily Calorie Intake</h3>
+              <div className="flex items-end justify-between h-48 gap-4">
+                {weeklyTrends.map((data, i) => (
+                  <div key={i} className="flex flex-col items-center flex-1">
+                    <div className="w-full bg-orange-500 rounded-t-lg transition-all hover:bg-orange-600" 
+                         style={{ height: `${(data.calories / 2500) * 100}%` }}>
+                    </div>
+                    <p className="text-sm font-semibold mt-2">{data.day}</p>
+                    <p className="text-xs text-muted-foreground">{data.calories}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-4 text-primary">Macronutrients</h3>
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={nutritionData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Line type="monotone" dataKey="protein" stroke="#ef4444" name="Protein (g)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="carbs" stroke="#f97316" name="Carbs (g)" strokeWidth={2} />
-                  <Line type="monotone" dataKey="fats" stroke="#eab308" name="Fats (g)" strokeWidth={2} />
-                </LineChart>
-              </ResponsiveContainer>
+              <h3 className="text-lg font-semibold mb-4 text-red-600">Daily Protein Intake</h3>
+              <div className="flex items-end justify-between h-48 gap-4">
+                {weeklyTrends.map((data, i) => (
+                  <div key={i} className="flex flex-col items-center flex-1">
+                    <div className="w-full bg-red-500 rounded-t-lg transition-all hover:bg-red-600" 
+                         style={{ height: `${(data.protein / 150) * 100}%` }}>
+                    </div>
+                    <p className="text-sm font-semibold mt-2">{data.day}</p>
+                    <p className="text-xs text-muted-foreground">{data.protein}g</p>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </Card>
 
-        {/* Weight Loss Progression */}
-        <Card className="rounded-[20px] p-8">
-          <h2 className="text-3xl font-bold mb-6 flex items-center gap-2">
-            <TrendingDown className="w-8 h-8 text-primary" />
-            Weight Loss Progression
-          </h2>
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={weightData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis domain={['dataMin - 5', 'dataMax + 5']} />
-              <Tooltip />
-              <Legend />
-              <Line 
-                type="monotone" 
-                dataKey="weight" 
-                stroke="hsl(var(--primary))" 
-                strokeWidth={3} 
-                name="Weight (kg)"
-                dot={{ fill: "hsl(var(--primary))", r: 5 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          {weightData.length > 1 && (
-            <div className="mt-6 p-4 bg-primary/10 rounded-lg">
-              <p className="text-lg font-semibold">
-                Progress: {(weightData[0]?.weight - weightData[weightData.length - 1]?.weight).toFixed(1)} kg lost
-              </p>
-            </div>
-          )}
-        </Card>
-
         {/* Nutrition Insights */}
-        <Card className="rounded-[20px] p-8 bg-gradient-to-br from-primary/10 to-primary/5">
+        <Card className="rounded-[20px] p-8 bg-gradient-to-br from-green-50 to-blue-50">
           <h2 className="text-3xl font-bold mb-6">AI Nutrition Insights</h2>
           <div className="space-y-4">
-            <p className="text-lg">📊 Track your progress over different time periods to identify patterns and trends.</p>
-            <p className="text-lg">💪 Consistent nutrition tracking helps you stay on target with your goals.</p>
-            <p className="text-lg">🎯 Use the timeline dropdown to view your data from different perspectives.</p>
-            <p className="text-lg">⚖️ Monitor your weight trends alongside nutrition to see the full picture of your health journey.</p>
+            <p className="text-lg">You're maintaining a consistent calorie intake throughout the week - great job!</p>
+            <p className="text-lg">Your protein intake is excellent for muscle recovery and growth.</p>
+            <p className="text-lg">Consider adding more healthy fats from sources like nuts, avocados, and fish.</p>
+            <p className="text-lg">Your meal timing is well-distributed throughout the day, supporting stable energy levels.</p>
           </div>
         </Card>
       </div>
