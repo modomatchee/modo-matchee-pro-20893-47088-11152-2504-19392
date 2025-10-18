@@ -83,9 +83,18 @@ const WorkoutPlayer = () => {
       setProgress(0);
       setIsPlaying(false);
     } else {
-      // Workout complete
-      toast.success('Workout completed! Great job!');
-      navigate('/workouts');
+      // Workout complete - navigate to summary
+      navigate('/workout-summary', {
+        state: {
+          workoutName: workout?.name,
+          duration: workout?.exercises.reduce((acc, ex) => {
+            const match = ex.duration?.match(/\d+/);
+            return acc + (match ? parseInt(match[0]) : 0);
+          }, 0),
+          exercisesCompleted: workout?.exercises.length,
+          caloriesBurned: Math.round((workout?.exercises.length || 0) * 35)
+        }
+      });
     }
   };
 
@@ -95,7 +104,7 @@ const WorkoutPlayer = () => {
       setProgress(0);
       setIsPlaying(false);
     } else {
-      navigate(`/workout-preview/${id}`);
+      navigate(`/workout-overview/${id}`);
     }
   };
 

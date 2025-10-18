@@ -6,6 +6,7 @@ import { Mic, Smile, Image, ChevronLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
+import logoImage from "@/assets/modomatchee-logo.png";
 
 interface Message {
   role: "user" | "assistant";
@@ -151,8 +152,12 @@ const AICoach = () => {
 
       {/* Logo/Avatar Area */}
       <div className="flex justify-center pt-11 mb-8">
-        <div className="w-[310px] h-[310px] rounded-full bg-[#090926] flex items-center justify-center">
-          <div className="text-6xl">🎾</div>
+        <div className="w-[310px] h-[310px] rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center p-8 transition-transform hover:scale-105 duration-300">
+          <img 
+            src={logoImage} 
+            alt="ModoMatchee Logo" 
+            className="w-full h-full object-contain"
+          />
         </div>
       </div>
 
