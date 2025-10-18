@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { UtensilsCrossed, TrendingUp, Droplets, Scale } from "lucide-react";
+import { UtensilsCrossed, TrendingUp, Droplets, Scale, Download } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { TimeRangeDropdown } from "@/components/TimeRangeDropdown";
 import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { exportToCSV } from "@/lib/export";
+import { toast } from "sonner";
 
 const NutritionDetailsEnhanced = () => {
   const navigate = useNavigate();
@@ -105,15 +107,47 @@ const NutritionDetailsEnhanced = () => {
     }
   };
 
+  const handleExport = () => {
+    try {
+      // Export weight data
+      const weightData = generateWeightData(weightRange);
+      exportToCSV(weightData, ['name', 'weight'], `weight_data_${weightRange}.csv`);
+      
+      // Export calories data
+      const caloriesData = generateCaloriesData(caloriesRange);
+      exportToCSV(caloriesData, ['name', 'intake', 'burned'], `calories_data_${caloriesRange}.csv`);
+      
+      // Export macros data
+      exportToCSV(macroData, ['name', 'value'], `macros_data.csv`);
+      
+      // Export hydration data
+      const hydrationData = generateHydrationData(hydrationRange);
+      exportToCSV(hydrationData, ['name', 'liters'], `hydration_data_${hydrationRange}.csv`);
+      
+      toast.success("Nutrition data exported successfully!");
+    } catch (error) {
+      toast.error("Failed to export data");
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
-      <Button
-        onClick={() => navigate("/nutrition")}
-        variant="outline"
-        className="mb-6"
-      >
-        ← Back to Nutrition Hub
-      </Button>
+      <div className="flex items-center justify-between mb-6">
+        <Button
+          onClick={() => navigate("/nutrition")}
+          variant="outline"
+        >
+          ← Back to Nutrition Hub
+        </Button>
+        
+        <Button
+          onClick={handleExport}
+          className="hover:scale-105 transition-transform"
+        >
+          <Download className="w-4 h-4 mr-2" />
+          Export Data
+        </Button>
+      </div>
 
       <div className="max-w-7xl mx-auto space-y-6">
         <div className="flex items-center gap-4 mb-8">

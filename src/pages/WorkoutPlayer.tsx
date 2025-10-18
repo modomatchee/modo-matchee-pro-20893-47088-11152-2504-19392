@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Play, Pause, ArrowLeft, SkipForward, Volume2, VolumeX, Timer } from "lucide-react";
+import { Play, Pause, ArrowLeft, SkipForward, Volume2, VolumeX, Timer, Coffee } from "lucide-react";
 
 interface Workout {
   id: string;
@@ -26,6 +26,9 @@ const WorkoutPlayer = () => {
   const [progress, setProgress] = useState(0);
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [totalTime, setTotalTime] = useState(0);
+  const [isOnBreak, setIsOnBreak] = useState(false);
+  const [breakTime, setBreakTime] = useState(30); // 30 second break
+  const [workoutStartTime] = useState(Date.now());
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -48,30 +51,56 @@ const WorkoutPlayer = () => {
   useEffect(() => {
     let interval: NodeJS.Timeout;
     
-    if (isPlaying && workout && timeRemaining > 0) {
-      interval = setInterval(() => {
-        setTimeRemaining((prev) => {
-          const newTime = prev - 1;
-          if (newTime <= 0) {
-            playCompletionSound();
-            handleNextExercise();
-            return 0;
-          }
-          
-          // Warning sounds at 10, 5, 3, 2, 1 seconds
-          if ([10, 5, 3, 2, 1].includes(newTime) && !isMuted) {
-            playTickSound();
-          }
-          
-          const newProgress = ((totalTime - newTime) / totalTime) * 100;
-          setProgress(newProgress);
-          return newTime;
-        });
-      }, 1000);
+    if (isPlaying && workout) {
+      if (isOnBreak && breakTime > 0) {
+        // Handle break countdown
+        interval = setInterval(() => {
+          setBreakTime((prev) => {
+            const newTime = prev - 1;
+            if (newTime <= 0) {
+              setIsOnBreak(false);
+              setBreakTime(30);
+              return 0;
+            }
+            if ([10, 5, 3, 2, 1].includes(newTime) && !isMuted) {
+              playTickSound();
+            }
+            return newTime;
+          });
+        }, 1000);
+      } else if (!isOnBreak && timeRemaining > 0) {
+        // Handle exercise countdown
+        interval = setInterval(() => {
+          setTimeRemaining((prev) => {
+            const newTime = prev - 1;
+            if (newTime <= 0) {
+              playCompletionSound();
+              // Check if this is the last exercise
+              if (currentExerciseIndex === workout.exercises.length - 1) {
+                handleWorkoutComplete();
+              } else {
+                // Start break before next exercise
+                setIsOnBreak(true);
+                setIsPlaying(false);
+              }
+              return 0;
+            }
+            
+            // Warning sounds at 10, 5, 3, 2, 1 seconds
+            if ([10, 5, 3, 2, 1].includes(newTime) && !isMuted) {
+              playTickSound();
+            }
+            
+            const newProgress = ((totalTime - newTime) / totalTime) * 100;
+            setProgress(newProgress);
+            return newTime;
+          });
+        }, 1000);
+      }
     }
     
     return () => clearInterval(interval);
-  }, [isPlaying, timeRemaining, currentExerciseIndex, workout, totalTime, isMuted]);
+  }, [isPlaying, timeRemaining, breakTime, isOnBreak, currentExerciseIndex, workout, totalTime, isMuted]);
 
   const fetchWorkout = async () => {
     try {
@@ -123,25 +152,61 @@ const WorkoutPlayer = () => {
     setIsPlaying(!isPlaying);
   };
 
-  const handleNextExercise = () => {
+  const handleWorkoutComplete = async () => {
+    if (!workout || !session?.user) return;
+
+    try {
+      const totalDuration = Math.round((Date.now() - workoutStartTime) / 1000 / 60); // minutes
+      const totalCalories = Math.round(workout.exercises.length * 35);
+
+      // Save workout session to database
+      const { error } = await supabase.from('workout_sessions').insert({
+        user_id: session.user.id,
+        workout_id: id,
+        workout_name: workout.name,
+        date: new Date().toISOString().split('T')[0],
+        duration: totalDuration,
+        calories_burned: totalCalories,
+        sets_completed: workout.exercises.length,
+        reps_completed: workout.exercises.length
+      });
+
+      if (error) throw error;
+
+      // Navigate to summary
+      navigate('/workout-summary', {
+        state: {
+          workoutName: workout.name,
+          workoutId: id,
+          duration: totalDuration,
+          exercisesCompleted: workout.exercises.length,
+          caloriesBurned: totalCalories
+        }
+      });
+    } catch (error) {
+      toast.error('Failed to save workout session');
+      console.error('Error saving workout session:', error);
+    }
+  };
+
+  const handleSkipBreak = () => {
+    setIsOnBreak(false);
+    setBreakTime(30);
     if (workout && currentExerciseIndex < workout.exercises.length - 1) {
       setCurrentExerciseIndex(currentExerciseIndex + 1);
       setProgress(0);
-      setIsPlaying(false);
-    } else {
-      // Workout complete - navigate to summary
-      navigate('/workout-summary', {
-        state: {
-          workoutName: workout?.name,
-          workoutId: id,
-          duration: workout?.exercises.reduce((acc, ex) => {
-            const match = ex.duration?.match(/\d+/);
-            return acc + (match ? parseInt(match[0]) : 0);
-          }, 0),
-          exercisesCompleted: workout?.exercises.length,
-          caloriesBurned: Math.round((workout?.exercises.length || 0) * 35)
-        }
-      });
+    }
+  };
+
+  const handleNextExercise = () => {
+    // Only allow skipping if timer has completed
+    if (timeRemaining === 0 && !isOnBreak) {
+      if (workout && currentExerciseIndex < workout.exercises.length - 1) {
+        setIsOnBreak(true);
+        setIsPlaying(false);
+      } else {
+        handleWorkoutComplete();
+      }
     }
   };
 
@@ -173,6 +238,53 @@ const WorkoutPlayer = () => {
 
   const currentExercise = workout.exercises[currentExerciseIndex];
   const nextExercise = workout.exercises[currentExerciseIndex + 1];
+
+  // Show break screen
+  if (isOnBreak) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <Card className="bg-gray-900 border-gray-800 p-12 text-center max-w-2xl">
+          <Coffee className="w-24 h-24 mx-auto mb-6 text-primary animate-pulse" />
+          <h2 className="text-4xl font-bold mb-4">Take a Break!</h2>
+          <p className="text-xl text-gray-400 mb-8">Rest before your next exercise</p>
+          
+          <div className="mb-8">
+            <p className="text-6xl font-mono font-bold text-primary mb-2">
+              {formatTime(breakTime)}
+            </p>
+            <p className="text-gray-400">Break time remaining</p>
+          </div>
+
+          {nextExercise && (
+            <div className="mb-8 p-6 bg-gray-800 rounded-lg">
+              <p className="text-sm text-gray-400 mb-2">Up Next</p>
+              <h3 className="text-2xl font-bold">{nextExercise.name}</h3>
+              <p className="text-gray-400 mt-2">{nextExercise.duration}</p>
+            </div>
+          )}
+
+          <div className="flex gap-4 justify-center">
+            <Button
+              onClick={handlePlayPause}
+              size="lg"
+              variant="outline"
+              className="bg-gray-800 border-gray-700 hover:bg-gray-700"
+            >
+              {isPlaying ? <Pause className="w-5 h-5 mr-2" /> : <Play className="w-5 h-5 mr-2" />}
+              {isPlaying ? 'Pause' : 'Resume'}
+            </Button>
+            <Button
+              onClick={handleSkipBreak}
+              size="lg"
+              className="hover:scale-105 transition-transform"
+            >
+              Skip Break
+            </Button>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-black text-white">
@@ -262,7 +374,8 @@ const WorkoutPlayer = () => {
             onClick={handleNextExercise}
             variant="outline"
             size="lg"
-            className="bg-gray-900 border-gray-700 hover:bg-gray-800 hover:scale-105 transition-transform"
+            disabled={timeRemaining > 0}
+            className="bg-gray-900 border-gray-700 hover:bg-gray-800 hover:scale-105 transition-transform disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <SkipForward className="w-5 h-5" />
           </Button>

@@ -2,10 +2,14 @@ import { useNavigate } from "react-router-dom";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Download } from "lucide-react";
+import { exportToCSV } from "@/lib/export";
+import { toast } from "sonner";
 
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { loading } = useAuth();
+  const { loading, session } = useAuth();
 
   if (loading) {
     return (
@@ -14,6 +18,64 @@ const Dashboard = () => {
       </div>
     );
   }
+
+  const handleExportAllData = async () => {
+    try {
+      const userId = session?.user?.id;
+      if (!userId) {
+        toast.error("User not authenticated");
+        return;
+      }
+
+      // Fetch all data from different tables
+      const [mealsData, weightData, workoutData, medicationsData] = await Promise.all([
+        supabase.from('meals').select('*').eq('user_id', userId),
+        supabase.from('weight_logs').select('*').eq('user_id', userId),
+        supabase.from('workout_sessions').select('*').eq('user_id', userId),
+        supabase.from('medications').select('*').eq('user_id', userId)
+      ]);
+
+      // Export meals data
+      if (mealsData.data && mealsData.data.length > 0) {
+        exportToCSV(
+          mealsData.data,
+          ['meal_name', 'meal_type', 'meal_time', 'total_calories', 'total_protein', 'total_carbs', 'total_fats'],
+          'meals_data.csv'
+        );
+      }
+
+      // Export weight logs
+      if (weightData.data && weightData.data.length > 0) {
+        exportToCSV(
+          weightData.data,
+          ['logged_at', 'weight', 'weight_unit', 'notes'],
+          'weight_logs.csv'
+        );
+      }
+
+      // Export workout sessions
+      if (workoutData.data && workoutData.data.length > 0) {
+        exportToCSV(
+          workoutData.data,
+          ['date', 'workout_name', 'duration', 'calories_burned', 'sets_completed', 'reps_completed'],
+          'workout_sessions.csv'
+        );
+      }
+
+      // Export medications
+      if (medicationsData.data && medicationsData.data.length > 0) {
+        exportToCSV(
+          medicationsData.data,
+          ['name', 'dosage', 'frequency', 'start_date', 'end_date', 'is_active'],
+          'medications.csv'
+        );
+      }
+
+      toast.success("All health and nutrition data exported successfully!");
+    } catch (error) {
+      toast.error("Failed to export data");
+    }
+  };
 
   const featureCards = [
     { title: "AI Coach", gradient: "from-[hsl(262,83%,58%)] to-[hsl(220,89%,61%)]", path: "/ai-coach" },
@@ -99,6 +161,13 @@ const Dashboard = () => {
                 className="w-full h-12 bg-primary hover:bg-primary/90 text-white text-xl rounded-[20px]"
               >
                 Match Calendar
+              </Button>
+              <Button 
+                onClick={handleExportAllData}
+                className="w-full h-12 bg-primary hover:bg-primary/90 text-white text-xl rounded-[20px]"
+              >
+                <Download className="w-5 h-5 mr-2" />
+                Export Data
               </Button>
             </div>
           </Card>

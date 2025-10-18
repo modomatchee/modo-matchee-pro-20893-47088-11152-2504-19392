@@ -96,12 +96,12 @@ const WorkoutSummary = () => {
             </Button>
           )}
           <Button 
-            onClick={() => navigate("/dashboard")}
+            onClick={() => navigate("/workouts")}
             size="lg"
             className="flex-1 hover:scale-105 transition-transform"
           >
             <Home className="w-4 h-4 mr-2" />
-            Return to Dashboard
+            Return to Workout Hub
           </Button>
         </div>
       </div>
