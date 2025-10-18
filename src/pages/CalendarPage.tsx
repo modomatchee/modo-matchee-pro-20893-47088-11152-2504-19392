@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameMonth, isSameDay, addMonths, subMonths } from "date-fns";
+import { calendarEventSchema } from "@/lib/validation";
 
 interface CalendarEvent {
   id: string;
@@ -61,23 +62,32 @@ const CalendarPage = () => {
       if (error) throw error;
       setEvents(data || []);
     } catch (error) {
-      console.error('Error fetching events:', error);
       toast.error('Failed to load events');
     }
   };
 
   const handleCreateEvent = async () => {
-    if (!formData.title || !formData.start_time || !formData.end_time) {
-      toast.error('Please fill in all required fields');
-      return;
-    }
-
     try {
+      // Parse and validate input
+      const eventData = calendarEventSchema.parse({
+        title: formData.title,
+        description: formData.description || undefined,
+        event_type: formData.event_type,
+        start_time: formData.start_time,
+        end_time: formData.end_time,
+        location: formData.location || undefined
+      });
+
       const { error } = await supabase
         .from('calendar_events')
         .insert([{
           user_id: session?.user.id,
-          ...formData,
+          title: eventData.title,
+          description: eventData.description || null,
+          event_type: eventData.event_type,
+          start_time: eventData.start_time,
+          end_time: eventData.end_time,
+          location: eventData.location || null,
         }]);
 
       if (error) throw error;
@@ -93,9 +103,13 @@ const CalendarPage = () => {
         location: "",
       });
       fetchEvents();
-    } catch (error) {
-      console.error('Error creating event:', error);
-      toast.error('Failed to create event');
+    } catch (error: any) {
+      if (error.errors) {
+        const firstError = error.errors[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error('Failed to create event');
+      }
     }
   };
 
@@ -111,7 +125,6 @@ const CalendarPage = () => {
       toast.success('Event deleted successfully');
       fetchEvents();
     } catch (error) {
-      console.error('Error deleting event:', error);
       toast.error('Failed to delete event');
     }
   };

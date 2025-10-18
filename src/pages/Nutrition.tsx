@@ -36,7 +36,7 @@ const Nutrition = () => {
 
   const fetchNutritionGoals = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('nutrition_goals')
         .select('*')
         .single();
@@ -51,7 +51,7 @@ const Nutrition = () => {
         });
       }
     } catch (error) {
-      console.error('Error fetching nutrition goals:', error);
+      // Silently fail - use default goals
     }
   };
 
@@ -60,7 +60,7 @@ const Nutrition = () => {
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('meals')
         .select('*')
         .gte('meal_time', today.toISOString())
@@ -80,7 +80,7 @@ const Nutrition = () => {
       
       setDailyTotals(totals);
     } catch (error) {
-      console.error('Error fetching meals:', error);
+      toast.error('Failed to load meals');
     }
   };
 

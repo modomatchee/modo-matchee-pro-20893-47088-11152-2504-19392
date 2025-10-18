@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { mealSchema } from "@/lib/validation";
 
 interface PresetMealsDialogProps {
   open: boolean;
@@ -35,7 +36,7 @@ export function PresetMealsDialog({ open, onOpenChange, onSelectMeal }: PresetMe
 
   const fetchPresetMeals = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('preset_meals')
         .select('*')
         .order('created_at', { ascending: false });
@@ -43,26 +44,30 @@ export function PresetMealsDialog({ open, onOpenChange, onSelectMeal }: PresetMe
       if (error) throw error;
       setPresetMeals(data || []);
     } catch (error) {
-      console.error('Error fetching preset meals:', error);
       toast.error('Failed to load preset meals');
     }
   };
 
   const handleCreatePreset = async () => {
-    if (!newMeal.meal_name || !newMeal.total_calories) {
-      toast.error("Please enter at least meal name and calories");
-      return;
-    }
-
     try {
-      const { error } = await (supabase as any).from('preset_meals').insert([{
-        user_id: session?.user?.id,
+      // Parse and validate input
+      const mealData = mealSchema.parse({
         meal_name: newMeal.meal_name,
         meal_type: newMeal.meal_type,
         total_calories: parseInt(newMeal.total_calories) || 0,
         total_protein: parseInt(newMeal.total_protein) || 0,
         total_carbs: parseInt(newMeal.total_carbs) || 0,
         total_fats: parseInt(newMeal.total_fats) || 0,
+      });
+
+      const { error } = await supabase.from('preset_meals').insert([{
+        user_id: session?.user?.id,
+        meal_name: mealData.meal_name,
+        meal_type: mealData.meal_type,
+        total_calories: mealData.total_calories,
+        total_protein: mealData.total_protein,
+        total_carbs: mealData.total_carbs,
+        total_fats: mealData.total_fats,
       }]);
 
       if (error) throw error;
@@ -78,15 +83,19 @@ export function PresetMealsDialog({ open, onOpenChange, onSelectMeal }: PresetMe
         total_fats: "",
       });
       fetchPresetMeals();
-    } catch (error) {
-      console.error('Error creating preset meal:', error);
-      toast.error("Failed to create preset meal");
+    } catch (error: any) {
+      if (error.errors) {
+        const firstError = error.errors[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error("Failed to create preset meal");
+      }
     }
   };
 
   const handleDeletePreset = async (id: string) => {
     try {
-      const { error } = await (supabase as any)
+      const { error } = await supabase
         .from('preset_meals')
         .delete()
         .eq('id', id);
@@ -96,14 +105,13 @@ export function PresetMealsDialog({ open, onOpenChange, onSelectMeal }: PresetMe
       toast.success("Preset meal deleted");
       fetchPresetMeals();
     } catch (error) {
-      console.error('Error deleting preset meal:', error);
       toast.error("Failed to delete preset meal");
     }
   };
 
   const handleSelectMeal = async (meal: any) => {
     try {
-      const { error } = await (supabase as any).from('meals').insert([{
+      const { error } = await supabase.from('meals').insert([{
         user_id: session?.user?.id,
         meal_name: meal.meal_name,
         meal_type: meal.meal_type,
@@ -120,7 +128,6 @@ export function PresetMealsDialog({ open, onOpenChange, onSelectMeal }: PresetMe
       onOpenChange(false);
       if (onSelectMeal) onSelectMeal(meal);
     } catch (error) {
-      console.error('Error logging meal:', error);
       toast.error("Failed to log meal");
     }
   };

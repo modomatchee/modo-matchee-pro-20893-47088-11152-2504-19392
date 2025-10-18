@@ -51,7 +51,7 @@ const Workouts = () => {
 
   const fetchWorkoutSessions = async () => {
     try {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('workout_sessions')
         .select('*')
         .order('date', { ascending: false })
@@ -60,7 +60,7 @@ const Workouts = () => {
       if (error) throw error;
       setWorkoutSessions(data || []);
     } catch (error) {
-      console.error('Error fetching workout sessions:', error);
+      toast.error('Failed to load workout sessions');
     }
   };
 

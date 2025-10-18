@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
+import { mealSchema } from "@/lib/validation";
 
 const LogMeal = () => {
   const navigate = useNavigate();
@@ -33,22 +34,28 @@ const LogMeal = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!mealName || !calories) {
-      toast.error("Please enter at least meal name and calories");
-      return;
-    }
-
     setSaving(true);
     try {
-      const { error } = await (supabase as any).from('meals').insert([{
-        user_id: session?.user?.id,
+      // Parse and validate input
+      const mealData = mealSchema.parse({
         meal_name: mealName,
         meal_type: mealType,
         total_calories: parseInt(calories) || 0,
         total_protein: parseInt(protein) || 0,
         total_carbs: parseInt(carbs) || 0,
         total_fats: parseInt(fats) || 0,
-        notes: notes || null,
+        notes: notes || undefined
+      });
+
+      const { error } = await supabase.from('meals').insert([{
+        user_id: session?.user?.id,
+        meal_name: mealData.meal_name,
+        meal_type: mealData.meal_type,
+        total_calories: mealData.total_calories,
+        total_protein: mealData.total_protein,
+        total_carbs: mealData.total_carbs,
+        total_fats: mealData.total_fats,
+        notes: mealData.notes || null,
         meal_time: new Date().toISOString(),
       }]);
 
@@ -56,9 +63,14 @@ const LogMeal = () => {
 
       toast.success("Meal logged successfully!");
       navigate("/nutrition");
-    } catch (error) {
-      console.error('Error saving meal:', error);
-      toast.error("Failed to save meal");
+    } catch (error: any) {
+      if (error.errors) {
+        // Zod validation errors
+        const firstError = error.errors[0];
+        toast.error(firstError.message);
+      } else {
+        toast.error("Failed to save meal");
+      }
     } finally {
       setSaving(false);
     }
