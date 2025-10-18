@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
@@ -6,7 +6,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { Play, Pause, ArrowLeft, SkipForward, Volume2, VolumeX } from "lucide-react";
+import { Play, Pause, ArrowLeft, SkipForward, Volume2, VolumeX, Timer } from "lucide-react";
 
 interface Workout {
   id: string;
@@ -24,6 +24,9 @@ const WorkoutPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [progress, setProgress] = useState(0);
+  const [timeRemaining, setTimeRemaining] = useState(0);
+  const [totalTime, setTotalTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
     if (session?.user && id) {
@@ -32,22 +35,43 @@ const WorkoutPlayer = () => {
   }, [session, id]);
 
   useEffect(() => {
+    if (workout && currentExerciseIndex < workout.exercises.length) {
+      const currentExercise = workout.exercises[currentExerciseIndex];
+      const durationMatch = currentExercise.duration?.match(/\d+/);
+      const duration = durationMatch ? parseInt(durationMatch[0]) * 60 : 180; // Default 3 min
+      setTotalTime(duration);
+      setTimeRemaining(duration);
+      setProgress(0);
+    }
+  }, [currentExerciseIndex, workout]);
+
+  useEffect(() => {
     let interval: NodeJS.Timeout;
     
-    if (isPlaying && workout) {
+    if (isPlaying && workout && timeRemaining > 0) {
       interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
+        setTimeRemaining((prev) => {
+          const newTime = prev - 1;
+          if (newTime <= 0) {
+            playCompletionSound();
             handleNextExercise();
             return 0;
           }
-          return prev + 1;
+          
+          // Warning sounds at 10, 5, 3, 2, 1 seconds
+          if ([10, 5, 3, 2, 1].includes(newTime) && !isMuted) {
+            playTickSound();
+          }
+          
+          const newProgress = ((totalTime - newTime) / totalTime) * 100;
+          setProgress(newProgress);
+          return newTime;
         });
-      }, 300); // Update every 300ms for smooth progress
+      }, 1000);
     }
     
     return () => clearInterval(interval);
-  }, [isPlaying, currentExerciseIndex, workout]);
+  }, [isPlaying, timeRemaining, currentExerciseIndex, workout, totalTime, isMuted]);
 
   const fetchWorkout = async () => {
     try {
@@ -73,6 +97,28 @@ const WorkoutPlayer = () => {
     }
   };
 
+  const playTickSound = () => {
+    if (!isMuted) {
+      const tick = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZ');
+      tick.volume = 0.3;
+      tick.play().catch(() => {});
+    }
+  };
+
+  const playCompletionSound = () => {
+    if (!isMuted) {
+      const completion = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZBjiS1/LMeSwFJHfH8N2QQAoUXrTp66hVFAtJouzwrGUZ');
+      completion.volume = 0.5;
+      completion.play().catch(() => {});
+    }
+  };
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   const handlePlayPause = () => {
     setIsPlaying(!isPlaying);
   };
@@ -87,6 +133,7 @@ const WorkoutPlayer = () => {
       navigate('/workout-summary', {
         state: {
           workoutName: workout?.name,
+          workoutId: id,
           duration: workout?.exercises.reduce((acc, ex) => {
             const match = ex.duration?.match(/\d+/);
             return acc + (match ? parseInt(match[0]) : 0);
@@ -163,17 +210,20 @@ const WorkoutPlayer = () => {
 
       {/* Controls Area */}
       <div className="max-w-6xl mx-auto p-8">
-        {/* Progress Bar */}
+        {/* Progress Bar & Timer */}
         <div className="mb-6">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-gray-400">
               Exercise {currentExerciseIndex + 1} of {workout.exercises.length}
             </span>
-            <span className="text-sm text-gray-400">
-              {currentExercise.duration}
-            </span>
+            <div className="flex items-center gap-2">
+              <Timer className="w-4 h-4 text-primary" />
+              <span className={`text-2xl font-mono font-bold ${timeRemaining <= 10 ? 'text-red-500 animate-pulse' : 'text-gray-400'}`}>
+                {formatTime(timeRemaining)}
+              </span>
+            </div>
           </div>
-          <Progress value={progress} className="h-2" />
+          <Progress value={progress} className="h-3" />
         </div>
 
         {/* Current Exercise Info */}
@@ -191,8 +241,7 @@ const WorkoutPlayer = () => {
             onClick={handlePreviousExercise}
             variant="outline"
             size="lg"
-            disabled={currentExerciseIndex === 0}
-            className="bg-gray-900 border-gray-700 hover:bg-gray-800"
+            className="bg-gray-900 border-gray-700 hover:bg-gray-800 hover:scale-105 transition-transform"
           >
             <ArrowLeft className="w-5 h-5" />
           </Button>
@@ -200,7 +249,7 @@ const WorkoutPlayer = () => {
           <Button
             onClick={handlePlayPause}
             size="lg"
-            className="w-20 h-20 rounded-full text-xl"
+            className="w-20 h-20 rounded-full text-xl hover:scale-110 transition-transform"
           >
             {isPlaying ? (
               <Pause className="w-8 h-8" />
@@ -213,8 +262,7 @@ const WorkoutPlayer = () => {
             onClick={handleNextExercise}
             variant="outline"
             size="lg"
-            disabled={currentExerciseIndex === workout.exercises.length - 1}
-            className="bg-gray-900 border-gray-700 hover:bg-gray-800"
+            className="bg-gray-900 border-gray-700 hover:bg-gray-800 hover:scale-105 transition-transform"
           >
             <SkipForward className="w-5 h-5" />
           </Button>
@@ -237,10 +285,10 @@ const WorkoutPlayer = () => {
         )}
 
         {/* Workout Complete Message */}
-        {currentExerciseIndex === workout.exercises.length - 1 && progress > 80 && (
-          <div className="mt-6 text-center">
+        {timeRemaining <= 10 && timeRemaining > 0 && (
+          <div className="mt-6 text-center animate-fade-in">
             <p className="text-lg text-primary font-semibold animate-pulse">
-              Almost done! Finish strong! 💪
+              {timeRemaining <= 3 ? '🔥 Finish strong! 🔥' : 'Almost done! Keep going! 💪'}
             </p>
           </div>
         )}

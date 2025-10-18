@@ -90,7 +90,7 @@ const Workouts = () => {
           <h2 className="text-3xl font-bold mb-4">My Workouts</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             {workouts.length === 0 ? (
-              <div className="col-span-full">
+              <div className="col-span-full animate-fade-in">
                 <div className="rounded-lg bg-card p-12 border-2 border-dashed border-border text-center">
                   <p className="text-lg text-muted-foreground">
                     No workouts yet. Create your first workout to get started!
@@ -98,11 +98,12 @@ const Workouts = () => {
                 </div>
               </div>
             ) : (
-              workouts.map((workout) => (
+              workouts.map((workout, index) => (
                 <div 
                   key={workout.id}
-                  onClick={() => navigate(`/workout-preview/${workout.id}`)}
-                  className="group cursor-pointer"
+                  onClick={() => navigate(`/workout-overview/${workout.id}`)}
+                  className="group cursor-pointer animate-fade-in hover-scale"
+                  style={{ animationDelay: `${index * 0.1}s` }}
                 >
                   <div className="rounded-lg bg-card p-6 border border-border hover:border-primary transition-all hover:shadow-lg h-full flex flex-col">
                     <h3 className="text-2xl font-bold mb-2 group-hover:text-primary transition-colors">

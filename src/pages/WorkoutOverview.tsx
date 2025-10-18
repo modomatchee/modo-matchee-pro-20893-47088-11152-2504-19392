@@ -5,7 +5,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { ArrowLeft, Play, Clock, Dumbbell } from "lucide-react";
+import { ArrowLeft, Play, Clock, Dumbbell, Zap } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 interface Exercise {
   name: string;
@@ -13,6 +14,8 @@ interface Exercise {
   duration: string;
   reps?: string;
   sets?: string;
+  difficulty?: "Beginner" | "Intermediate" | "Advanced";
+  description?: string;
 }
 
 interface Workout {
@@ -21,6 +24,27 @@ interface Workout {
   description?: string;
   exercises: Exercise[];
 }
+
+const getCategoryIcon = (category: string) => {
+  const icons: Record<string, string> = {
+    "Upper Body": "💪",
+    "Lower Body": "🦵",
+    "Core": "🔥",
+    "Cardio": "🏃",
+    "Flexibility": "🧘",
+    "Full Body": "🏋️"
+  };
+  return icons[category] || "🎯";
+};
+
+const getDifficultyColor = (difficulty?: string) => {
+  switch (difficulty) {
+    case "Beginner": return "bg-green-500/10 text-green-500 border-green-500/20";
+    case "Intermediate": return "bg-yellow-500/10 text-yellow-500 border-yellow-500/20";
+    case "Advanced": return "bg-red-500/10 text-red-500 border-red-500/20";
+    default: return "bg-primary/10 text-primary border-primary/20";
+  }
+};
 
 const WorkoutOverview = () => {
   const navigate = useNavigate();
@@ -98,7 +122,7 @@ const WorkoutOverview = () => {
 
       <div className="max-w-4xl mx-auto">
         {/* Workout Header */}
-        <Card className="rounded-[20px] p-8 mb-6">
+        <Card className="rounded-[20px] p-8 mb-6 animate-fade-in">
           <div className="flex items-start justify-between mb-4">
             <div>
               <h1 className="text-4xl font-bold mb-2">{workout.name}</h1>
@@ -106,7 +130,9 @@ const WorkoutOverview = () => {
                 <p className="text-lg text-muted-foreground">{workout.description}</p>
               )}
             </div>
-            <Dumbbell className="w-12 h-12 text-primary" />
+            <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+              <Dumbbell className="w-8 h-8 text-primary" />
+            </div>
           </div>
 
           <div className="flex gap-6 mt-6">
@@ -118,12 +144,16 @@ const WorkoutOverview = () => {
               <Play className="w-5 h-5 text-muted-foreground" />
               <span className="text-lg">{workout.exercises.length} exercises</span>
             </div>
+            <div className="flex items-center gap-2">
+              <Zap className="w-5 h-5 text-muted-foreground" />
+              <span className="text-lg">~{Math.round(workout.exercises.length * 35)} cal</span>
+            </div>
           </div>
 
           <Button 
             onClick={startWorkout}
             size="lg"
-            className="w-full mt-6 text-lg h-14"
+            className="w-full mt-6 text-lg h-14 hover:scale-[1.02] transition-transform"
           >
             <Play className="w-5 h-5 mr-2" />
             Start Workout
@@ -131,24 +161,37 @@ const WorkoutOverview = () => {
         </Card>
 
         {/* Exercise List */}
-        <Card className="rounded-[20px] p-8">
+        <Card className="rounded-[20px] p-8 animate-fade-in" style={{ animationDelay: '0.1s' }}>
           <h2 className="text-2xl font-bold mb-6">Exercise List</h2>
           <div className="space-y-4">
             {workout.exercises.map((exercise, index) => (
               <div 
                 key={index}
-                className="flex items-center gap-4 p-4 rounded-lg border-2 border-border hover:border-primary transition-colors"
+                className="flex items-center gap-4 p-4 rounded-lg border-2 border-border hover:border-primary transition-all hover:shadow-md group"
               >
-                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-primary font-bold text-lg">
-                  {index + 1}
+                <div className="flex items-center justify-center w-12 h-12 rounded-full bg-primary/10 text-2xl group-hover:scale-110 transition-transform">
+                  {getCategoryIcon(exercise.category)}
                 </div>
                 
                 <div className="flex-1">
-                  <h3 className="text-lg font-semibold">{exercise.name}</h3>
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-lg font-semibold">{exercise.name}</h3>
+                    {exercise.difficulty && (
+                      <Badge variant="outline" className={getDifficultyColor(exercise.difficulty)}>
+                        {exercise.difficulty}
+                      </Badge>
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">{exercise.category}</p>
+                  {exercise.description && (
+                    <p className="text-xs text-muted-foreground mt-1">{exercise.description}</p>
+                  )}
                 </div>
 
                 <div className="text-right">
+                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold mb-1">
+                    {index + 1}
+                  </div>
                   {exercise.reps && exercise.sets && (
                     <p className="text-sm font-medium">
                       {exercise.sets} × {exercise.reps}
