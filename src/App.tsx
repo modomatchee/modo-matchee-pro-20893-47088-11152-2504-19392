@@ -62,8 +62,7 @@ const App = () => (
           <Route path="/heart-rate-details" element={<HeartRateDetails />} />
           <Route path="/respiratory-details" element={<RespiratoryDetails />} />
           <Route path="/health-report" element={<HealthReportShare />} />
-          <Route path="/nutrition-details" element={<NutritionDetails />} />
-          <Route path="/nutrition-details-enhanced" element={<NutritionDetailsEnhanced />} />
+          <Route path="/nutrition-details" element={<NutritionDetailsEnhanced />} />
           <Route path="/workout-preview/:id" element={<WorkoutPreview />} />
           <Route path="/workout-overview/:id" element={<WorkoutOverview />} />
           <Route path="/workout-player/:id" element={<WorkoutPlayer />} />
