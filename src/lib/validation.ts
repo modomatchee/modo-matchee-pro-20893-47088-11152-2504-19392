@@ -89,3 +89,29 @@ export const calendarEventSchema = z.object({
     path: ['end_time']
   }
 );
+
+const exerciseSchema = z.object({
+  id: z.number().int().positive(),
+  name: z.string()
+    .trim()
+    .min(1, 'Exercise name is required')
+    .max(200, 'Exercise name must be less than 200 characters'),
+  duration: z.string()
+    .trim()
+    .min(1, 'Duration is required')
+    .max(50, 'Duration must be less than 50 characters'),
+  category: z.string()
+    .trim()
+    .min(1, 'Category is required')
+    .max(100, 'Category must be less than 100 characters')
+});
+
+export const workoutSchema = z.object({
+  name: z.string()
+    .trim()
+    .min(1, 'Workout name is required')
+    .max(200, 'Workout name must be less than 200 characters'),
+  exercises: z.array(exerciseSchema)
+    .min(1, 'At least one exercise is required')
+    .max(50, 'Maximum 50 exercises allowed per workout')
+});

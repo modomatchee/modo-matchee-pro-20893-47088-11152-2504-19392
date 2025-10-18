@@ -8,6 +8,7 @@ import { Search, Play, Plus } from "lucide-react";
 import { getExercisesByCategory, ExerciseTemplate } from "@/lib/exercises";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { workoutSchema } from "@/lib/validation";
 
 const CreateWorkoutLibrary = () => {
   const navigate = useNavigate();
@@ -32,20 +33,22 @@ const CreateWorkoutLibrary = () => {
   };
 
   const handleSaveWorkout = async () => {
-    if (!workoutName.trim()) {
-      toast.error("Please enter a workout name");
-      return;
-    }
-
-    if (selectedExercises.length === 0) {
-      toast.error("Please add at least one exercise");
-      return;
-    }
-
     try {
-      const { error } = await supabase.from('workouts').insert([{
+      // Validate input using zod schema
+      const validationResult = workoutSchema.safeParse({
         name: workoutName,
-        exercises: selectedExercises as any,
+        exercises: selectedExercises
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        return;
+      }
+
+      const { error } = await supabase.from('workouts').insert([{
+        name: validationResult.data.name,
+        exercises: validationResult.data.exercises,
         user_id: session?.user?.id,
       }]);
 
@@ -57,7 +60,6 @@ const CreateWorkoutLibrary = () => {
       setShowSaveDialog(false);
       navigate("/workouts");
     } catch (error) {
-      console.error("Error saving workout:", error);
       toast.error("Failed to save workout");
     }
   };
