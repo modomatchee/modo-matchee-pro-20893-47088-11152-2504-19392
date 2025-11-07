@@ -10,6 +10,11 @@ const ImportMedical = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { loading } = useAuth();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [extractedMeds, setExtractedMeds] = useState([
+    { name: "Amlodipine", dosage: "5mg", frequency: "Once daily", suggestedTime: "09:00" },
+    { name: "Atorvastatin", dosage: "20mg", frequency: "Once daily at bedtime", suggestedTime: "22:00" },
+  ]);
 
   if (loading) {
     return (
@@ -18,11 +23,6 @@ const ImportMedical = () => {
       </div>
     );
   }
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [extractedMeds, setExtractedMeds] = useState([
-    { name: "Amlodipine", dosage: "5mg", frequency: "Once daily", suggestedTime: "09:00" },
-    { name: "Atorvastatin", dosage: "20mg", frequency: "Once daily at bedtime", suggestedTime: "22:00" },
-  ]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
